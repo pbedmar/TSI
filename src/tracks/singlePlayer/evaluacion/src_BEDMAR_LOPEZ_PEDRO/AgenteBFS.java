@@ -9,11 +9,13 @@ import tools.Pair;
 import tools.Vector2d;
 import tracks.singlePlayer.simple.greedyTreeSearch.TreeNode;
 
+import java.awt.*;
 import java.util.*;
 
 public class AgenteBFS extends AbstractPlayer {
 
-    public class Vector2dInt {
+    // class representing a position on the grid
+    public static class Vector2dInt {
         /**
          * X-coordinate of the vector.
          */
@@ -51,11 +53,6 @@ public class AgenteBFS extends AbstractPlayer {
             }
         }
 
-//        @Override
-//        public int hashCode() {
-//            return this.x + this.y;
-//        }
-
         public String toString() {
             return "(" + x + ", " + y + ")";
         }
@@ -63,7 +60,6 @@ public class AgenteBFS extends AbstractPlayer {
 
     }
 
-    public static Random random;
     public static Vector2dInt fscale;
 
     public static Vector2dInt portal;
@@ -76,13 +72,18 @@ public class AgenteBFS extends AbstractPlayer {
     public static ArrayList<ArrayList<Boolean>> visited;
 
     public static LinkedList<Types.ACTIONS> actions;
+    public static int countExpandedNodes;
+
 
     public AgenteBFS(StateObservation so, ElapsedCpuTimer elapsedTimer) {
+        // scale factor to transform world to grid coordinates
         fscale = new Vector2dInt(so.getWorldDimension().width / so.getObservationGrid().length, so.getWorldDimension().height / so.getObservationGrid()[0].length);
 
+        // store goal (portal) position
         ArrayList<Observation>[] portals = so.getPortalsPositions();
         portal = scale(portals[0].get(0).position);
 
+        // initialize obstacles matrix
         obstacles = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
             obstacles.add(new ArrayList<>(so.getObservationGrid()[0].length));
@@ -90,9 +91,8 @@ public class AgenteBFS extends AbstractPlayer {
                 obstacles.get(i).add(false);
             }
         }
-//        System.out.println(so.getObservationGrid()[0].length);
-//        System.out.println(so.getObservationGrid().length);
 
+        // store obstacles in the level, both walls and traps.
         for (ArrayList<Observation> observations : so.getImmovablePositions()) {
             for (Observation obs : observations) {
                 Vector2dInt scaled_pos = scale(obs.position);
@@ -100,42 +100,13 @@ public class AgenteBFS extends AbstractPlayer {
             }
         }
 
+        // start position in grid coordinates
         avatar_position = scale(so.getAvatarPosition());
-
-
-//        //portal.x = Math.floor(portal.x / scale.x);
-//        //portal.y = Math.floor(portal.y / scale.y);
-//
-//        Vector2dInt v1 = new Vector2dInt(2,5);
-//        Vector2dInt v2 = new Vector2dInt(2,5);
-//        Vector2dInt v3 = new Vector2dInt(3,4);
-//        HashSet<Vector2dInt> hs2 = new HashSet<>();
-//        HashMap<Vector2dInt, Vector2dInt> hm = new HashMap<>();
-//
-//        ArrayList<Vector2dInt> al2 = new ArrayList<>();
-//
-//        hs2.add(v1);
-//        if(hs2.contains(v2)) {
-//            System.out.println("Contenido");
-//        }
-//
-//        al2.add(v1);
-//        if(al2.contains(v2)) {
-//            System.out.println("Contenido");
-//        }
-//
-//        if(v2.equals(v1)) {
-//            System.out.println("Iguales");
-//        }
-//
-//          hm.put(v1,v3);
-//          if(hm.containsKey(v1)) {
-//              System.out.println("Contenido");
-//          }
 
         route_computed = false;
         queue = new LinkedList<>();
 
+        // initialize parent matrix, null parent by default
         parent = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
             parent.add(new ArrayList<>(so.getObservationGrid()[0].length));
@@ -144,6 +115,7 @@ public class AgenteBFS extends AbstractPlayer {
             }
         }
 
+        // initialize visited matrix, false by default
         visited = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
             visited.add(new ArrayList<>(so.getObservationGrid()[0].length));
@@ -153,35 +125,98 @@ public class AgenteBFS extends AbstractPlayer {
         }
 
         actions = new LinkedList<>();
-
-//        System.out.println(portal);
+        countExpandedNodes = 0;
     }
 
+    // world coordinates to grid coordinates
+    public Vector2dInt scale(Vector2dInt position) {
+        return new Vector2dInt(position.x / fscale.x,
+                position.y / fscale.y);
+    }
+
+    // world coordinates to grid coordinates, now using Vector2d
+    public Vector2dInt scale(Vector2d position) {
+        return new Vector2dInt((int) position.x / fscale.x,
+                (int) position.y / fscale.y);
+    }
+
+    // generate up, down, left and right children. they are generated only if:
+    //      -> they are inside the grid
+    //      -> they haven't been visited before
+    //      -> there are no obstacles on that position
+    // by following these rules, they are marked as visited, get a parent assigned and are added to the queue
+    public void generateChildren(StateObservation so, Vector2dInt expandedNode) {
+        int x = expandedNode.x;
+        int y = expandedNode.y;
+
+        Vector2dInt up = new Vector2dInt(x, y + 1);
+        if (y + 1 < so.getObservationGrid()[0].length && !visited.get(up.x).get(up.y)) {
+            if (!obstacles.get(x).get(y + 1)) {
+                visited.get(up.x).set(up.y, true);
+                parent.get(up.x).set(up.y, expandedNode);
+                queue.addLast(up);
+                countExpandedNodes++;
+            }
+        }
+
+        Vector2dInt down = new Vector2dInt(x, y - 1);
+        if (y - 1 >= 0 && !visited.get(down.x).get(down.y)) {
+            if (!obstacles.get(x).get(y - 1)) {
+                visited.get(down.x).set(down.y, true);
+                parent.get(down.x).set(down.y, expandedNode);
+                queue.addLast(down);
+                countExpandedNodes++;
+            }
+        }
+
+        Vector2dInt left = new Vector2dInt(x - 1, y);
+        if (x - 1 >= 0 && !visited.get(left.x).get(left.y)) {
+            if (!obstacles.get(x - 1).get(y)) {
+                visited.get(left.x).set(left.y, true);
+                parent.get(left.x).set(left.y, expandedNode);
+                queue.addLast(left);
+                countExpandedNodes++;
+            }
+        }
+
+        Vector2dInt right = new Vector2dInt(x + 1, y);
+        if (x + 1 < so.getObservationGrid().length && !visited.get(right.x).get(right.y)) {
+            if (!obstacles.get(x + 1).get(y)) {
+                visited.get(right.x).set(right.y, true);
+                parent.get(right.x).set(right.y, expandedNode);
+                queue.addLast(right);
+                countExpandedNodes++;
+            }
+        }
+    }
+
+    // executed at each step
     @Override
     public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer) {
 
+        // route computed only once, before the first step
         if (!route_computed) {
 
+            // start measuring execution time
+            double tStart = System.nanoTime();
+            double total = 0;
+
+            // add start node to the queue
             visited.get(avatar_position.x).set(avatar_position.y, true);
-            //parent.put(avatar_position, null);
             queue.addLast(avatar_position);
 
+            // while there are nodes to visit and solution not found
             while (!queue.isEmpty() && !route_computed) {
                 Vector2dInt expanded_node = queue.removeFirst();
-//                System.out.println(expanded_node.x+" "+expanded_node.y);
-                int x = expanded_node.x;
-                int y = expanded_node.y;
 
+                // if the expanded node is the goal
                 if (expanded_node.equals(portal)) {
-
                     Vector2dInt child_node = expanded_node;
-                    Vector2dInt parent_node = parent.get(x).get(y);
+                    Vector2dInt parent_node = parent.get(expanded_node.x).get(expanded_node.y);
 
-//                    if (parent_node == null) {
-//                        actions.addLast(Types.ACTIONS.ACTION_NIL);
-//                    }
-
-                    while (parent_node!=null) {
+                    // using the parent-child relationship, generate actions to be performed by the agent.
+                    // start from the goal node and end in the start node
+                    while (parent_node != null) {
                         if (parent_node.y - child_node.y < 0) {
                             actions.addLast(Types.ACTIONS.ACTION_DOWN);
                         } else if (parent_node.y - child_node.y > 0) {
@@ -192,76 +227,50 @@ public class AgenteBFS extends AbstractPlayer {
                             actions.addLast(Types.ACTIONS.ACTION_LEFT);
                         }
 
-                        System.out.println(parent_node);
-
                         child_node = parent_node;
                         parent_node = parent.get(parent_node.x).get(parent_node.y);
-
-                    }
-
-                    System.out.println("");
-                    for (Types.ACTIONS ac: actions) {
-                        System.out.println(ac);
                     }
 
                     route_computed = true;
 
+                    // if the expanded node is not the goal
                 } else {
 
-                    Vector2dInt up = new Vector2dInt(x, y + 1);
-                    if (y + 1 < so.getObservationGrid()[0].length && !visited.get(up.x).get(up.y)) {
-                        if (!obstacles.get(x).get(y + 1)) {
-                            visited.get(up.x).set(up.y, true);
-                            parent.get(up.x).set(up.y, expanded_node);
-                            queue.addLast(up);
-                        }
-                    }
+                    generateChildren(so, expanded_node);
+                }
+            }
 
-                    Vector2dInt down = new Vector2dInt(x, y - 1);
-                    if (y - 1 >= 0 && !visited.get(down.x).get(down.y)) {
-                        if (!obstacles.get(x).get(y - 1)) {
-                            visited.get(down.x).set(down.y, true);
-                            parent.get(down.x).set(down.y, expanded_node);
-                            queue.addLast(down);
-                        }
-                    }
+            // end measuring execution time
+            double tEnd = System.nanoTime();
+            double totalTimeInSeconds = (tEnd - tStart) / 1000000000;
 
-                    Vector2dInt left = new Vector2dInt(x - 1, y);
-                    if (x - 1 >= 0 && !visited.get(left.x).get(left.y)) {
-                        if (!obstacles.get(x - 1).get(y)) {
-                            visited.get(left.x).set(left.y, true);
-                            parent.get(left.x).set(left.y, expanded_node);
-                            queue.addLast(left);
-                        }
-                    }
+            // log results -- runtime
+            System.out.println("RUNTIME: " + totalTimeInSeconds);
 
-                    Vector2dInt right = new Vector2dInt(x + 1, y);
-                    if (x + 1 < so.getObservationGrid().length && !visited.get(right.x).get(right.y)) {
-                        if (!obstacles.get(x + 1).get(y)) {
-                            visited.get(right.x).set(right.y, true);
-                            parent.get(right.x).set(right.y, expanded_node);
-                            queue.addLast(right);
-                        }
+            // log results -- route length
+            System.out.println("TAMANO DE LA RUTA: " + actions.size());
+
+            // log results -- nb. of expanded nodes
+            System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
+
+            // log results -- max nb. of nodes in memory
+            int countMaxNodesInMemory = 0;
+            for (int i = 0; i < so.getObservationGrid().length; i++) {
+                for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
+                    if (visited.get(i).get(j)) {
+                        countMaxNodesInMemory ++;
                     }
                 }
             }
+            System.out.println("MAX NODOS EN MEMORIA: " + countMaxNodesInMemory);
         }
 
+        // get next action to be performed by the agent
         Types.ACTIONS next = Types.ACTIONS.ACTION_NIL;
         if (!actions.isEmpty()) {
             next = actions.removeLast();
         }
 
         return next;
-    }
-
-    public Vector2dInt scale(Vector2dInt position){
-        return new Vector2dInt(position.x / fscale.x,
-                                        position.y / fscale.y);
-    }
-
-    public Vector2dInt scale(Vector2d position){
-        return new Vector2dInt((int) position.x / fscale.x,
-                (int) position.y / fscale.y);
     }
 }
