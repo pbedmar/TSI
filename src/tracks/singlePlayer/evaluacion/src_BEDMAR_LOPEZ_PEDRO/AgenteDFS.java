@@ -7,9 +7,10 @@ import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
-public class AgenteBFS extends AbstractPlayer {
+public class AgenteDFS extends AbstractPlayer {
 
     // class representing a position on the grid
     public static class Vector2dInt {
@@ -72,7 +73,7 @@ public class AgenteBFS extends AbstractPlayer {
     public static int countExpandedNodes;
 
 
-    public AgenteBFS(StateObservation so, ElapsedCpuTimer elapsedTimer) {
+    public AgenteDFS(StateObservation so, ElapsedCpuTimer elapsedTimer) {
         // scale factor to transform world to grid coordinates
         fscale = new Vector2dInt(so.getWorldDimension().width / so.getObservationGrid().length, so.getWorldDimension().height / so.getObservationGrid()[0].length);
 
@@ -137,54 +138,104 @@ public class AgenteBFS extends AbstractPlayer {
                 (int) position.y / fscale.y);
     }
 
+    public boolean DFS(StateObservation so, Vector2dInt expandedNode) {
+        // add start node to the queue
+        visited.get(expandedNode.x).set(expandedNode.y, true);
+        parent.get(expandedNode.x).set(expandedNode.y, null);
+
+        return DFSsearch(so, expandedNode);
+    }
+
     // generate up, down, left and right children. they are generated only if:
     //      -> they are inside the grid
     //      -> they haven't been visited before
     //      -> there are no obstacles on that position
     // by following these rules, they are marked as visited, get a parent assigned and are added to the queue
-    public void generateChildren(StateObservation so, Vector2dInt expandedNode) {
+    public boolean DFSsearch(StateObservation so, Vector2dInt expandedNode) {
+        System.out.println(expandedNode);
+
+        if (expandedNode.equals(portal)) {
+            Vector2dInt child_node = expandedNode;
+            Vector2dInt parent_node = parent.get(expandedNode.x).get(expandedNode.y);
+
+            // using the parent-child relationship, generate actions to be performed by the agent.
+            // start from the goal node and end in the start node
+            while (parent_node != null) {
+                if (parent_node.y - child_node.y < 0) {
+                    actions.addLast(Types.ACTIONS.ACTION_DOWN);
+                } else if (parent_node.y - child_node.y > 0) {
+                    actions.addLast(Types.ACTIONS.ACTION_UP);
+                } else if (parent_node.x - child_node.x < 0) {
+                    actions.addLast(Types.ACTIONS.ACTION_RIGHT);
+                } else if (parent_node.x - child_node.x > 0) {
+                    actions.addLast(Types.ACTIONS.ACTION_LEFT);
+                }
+
+                child_node = parent_node;
+                parent_node = parent.get(parent_node.x).get(parent_node.y);
+            }
+
+            route_computed = true;
+
+            return true;
+
+        }
+
         int x = expandedNode.x;
         int y = expandedNode.y;
+        boolean found = false;
 
         Vector2dInt up = new Vector2dInt(x, y + 1);
         if (y + 1 < so.getObservationGrid()[0].length && !visited.get(up.x).get(up.y)) {
             if (!obstacles.get(x).get(y + 1)) {
                 visited.get(up.x).set(up.y, true);
                 parent.get(up.x).set(up.y, expandedNode);
-                queue.addLast(up);
                 countExpandedNodes++;
+                found = DFSsearch(so, up);
             }
         }
+
+        if (found)
+            return true;
 
         Vector2dInt down = new Vector2dInt(x, y - 1);
         if (y - 1 >= 0 && !visited.get(down.x).get(down.y)) {
             if (!obstacles.get(x).get(y - 1)) {
                 visited.get(down.x).set(down.y, true);
                 parent.get(down.x).set(down.y, expandedNode);
-                queue.addLast(down);
                 countExpandedNodes++;
+                found = DFSsearch(so, down);
             }
         }
+
+        if (found)
+            return true;
 
         Vector2dInt left = new Vector2dInt(x - 1, y);
         if (x - 1 >= 0 && !visited.get(left.x).get(left.y)) {
             if (!obstacles.get(x - 1).get(y)) {
                 visited.get(left.x).set(left.y, true);
                 parent.get(left.x).set(left.y, expandedNode);
-                queue.addLast(left);
                 countExpandedNodes++;
+                found = DFSsearch(so, left);
             }
         }
+
+        if (found)
+            return true;
 
         Vector2dInt right = new Vector2dInt(x + 1, y);
         if (x + 1 < so.getObservationGrid().length && !visited.get(right.x).get(right.y)) {
             if (!obstacles.get(x + 1).get(y)) {
+                System.out.println("hellooooo");
                 visited.get(right.x).set(right.y, true);
                 parent.get(right.x).set(right.y, expandedNode);
-                queue.addLast(right);
                 countExpandedNodes++;
+                found = DFSsearch(so, right);
             }
         }
+
+        return found;
     }
 
     // executed at each step
@@ -198,45 +249,9 @@ public class AgenteBFS extends AbstractPlayer {
             double tStart = System.nanoTime();
             double total = 0;
 
-            // add start node to the queue
-            visited.get(avatar_position.x).set(avatar_position.y, true);
-            parent.get(avatar_position.x).set(avatar_position.y, null);
-            queue.addLast(avatar_position);
 
-            // while there are nodes to visit and solution not found
-            while (!queue.isEmpty() && !route_computed) {
-                Vector2dInt expanded_node = queue.removeFirst();
+            DFS(so, avatar_position);
 
-                // if the expanded node is the goal
-                if (expanded_node.equals(portal)) {
-                    Vector2dInt child_node = expanded_node;
-                    Vector2dInt parent_node = parent.get(expanded_node.x).get(expanded_node.y);
-
-                    // using the parent-child relationship, generate actions to be performed by the agent.
-                    // start from the goal node and end in the start node
-                    while (parent_node != null) {
-                        if (parent_node.y - child_node.y < 0) {
-                            actions.addLast(Types.ACTIONS.ACTION_DOWN);
-                        } else if (parent_node.y - child_node.y > 0) {
-                            actions.addLast(Types.ACTIONS.ACTION_UP);
-                        } else if (parent_node.x - child_node.x < 0) {
-                            actions.addLast(Types.ACTIONS.ACTION_RIGHT);
-                        } else if (parent_node.x - child_node.x > 0) {
-                            actions.addLast(Types.ACTIONS.ACTION_LEFT);
-                        }
-
-                        child_node = parent_node;
-                        parent_node = parent.get(parent_node.x).get(parent_node.y);
-                    }
-
-                    route_computed = true;
-
-                    // if the expanded node is not the goal
-                } else {
-
-                    generateChildren(so, expanded_node);
-                }
-            }
 
             // end measuring execution time
             double tEnd = System.nanoTime();

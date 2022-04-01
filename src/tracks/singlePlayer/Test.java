@@ -27,18 +27,20 @@ public class Test {
 
 		String teacherController = "tracks.singlePlayer.myAgent_Camel";
 		String agenteBFS = "tracks.singlePlayer.evaluacion.src_BEDMAR_LOPEZ_PEDRO.AgenteBFS";
+		String agenteDFS = "tracks.singlePlayer.evaluacion.src_BEDMAR_LOPEZ_PEDRO.AgenteDFS";
+		String agenteDFS_stack = "tracks.singlePlayer.evaluacion.src_BEDMAR_LOPEZ_PEDRO.AgenteDFS_stack";
 
 		//Load available games
 		String spGamesCollection =  "examples/all_games_sp.csv";
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		//Game settings
-		boolean visuals = false;
+		boolean visuals = true;
 		int seed = new Random().nextInt();
 
 		// Game and level to play
 		int gameIdx = 58; // camel = 15 labyrinth = 58
-		int levelIdx = 8; // level names from 0 to 4 (game_lvlN.txt).
+		int levelIdx = 6; // level names from 0 to 4 (game_lvlN.txt).
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
 		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
@@ -53,7 +55,7 @@ public class Test {
 		//ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-		ArcadeMachine.runOneGame(game, level1, visuals, agenteBFS, recordActionsFile, seed, 0);
+		ArcadeMachine.runOneGame(game, level1, visuals, agenteDFS_stack, recordActionsFile, seed, 0);
 
 
 		// 3. This replays a game from an action file previously recorded
