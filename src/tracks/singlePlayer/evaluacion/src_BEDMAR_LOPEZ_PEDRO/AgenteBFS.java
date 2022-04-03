@@ -152,7 +152,6 @@ public class AgenteBFS extends AbstractPlayer {
                 visited.get(up.x).set(up.y, true);
                 parent.get(up.x).set(up.y, expandedNode);
                 queue.addLast(up);
-                countExpandedNodes++;
             }
         }
 
@@ -162,7 +161,6 @@ public class AgenteBFS extends AbstractPlayer {
                 visited.get(down.x).set(down.y, true);
                 parent.get(down.x).set(down.y, expandedNode);
                 queue.addLast(down);
-                countExpandedNodes++;
             }
         }
 
@@ -172,7 +170,6 @@ public class AgenteBFS extends AbstractPlayer {
                 visited.get(left.x).set(left.y, true);
                 parent.get(left.x).set(left.y, expandedNode);
                 queue.addLast(left);
-                countExpandedNodes++;
             }
         }
 
@@ -182,7 +179,6 @@ public class AgenteBFS extends AbstractPlayer {
                 visited.get(right.x).set(right.y, true);
                 parent.get(right.x).set(right.y, expandedNode);
                 queue.addLast(right);
-                countExpandedNodes++;
             }
         }
     }
@@ -208,6 +204,7 @@ public class AgenteBFS extends AbstractPlayer {
                 Vector2dInt expanded_node = queue.removeFirst();
 
                 // if the expanded node is the goal
+                countExpandedNodes++;
                 if (expanded_node.equals(portal)) {
                     Vector2dInt child_node = expanded_node;
                     Vector2dInt parent_node = parent.get(expanded_node.x).get(expanded_node.y);

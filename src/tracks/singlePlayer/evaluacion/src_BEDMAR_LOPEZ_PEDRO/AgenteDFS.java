@@ -154,6 +154,7 @@ public class AgenteDFS extends AbstractPlayer {
     public boolean DFSsearch(StateObservation so, Vector2dInt expandedNode) {
         System.out.println(expandedNode);
 
+        countExpandedNodes++;
         if (expandedNode.equals(portal)) {
             Vector2dInt child_node = expandedNode;
             Vector2dInt parent_node = parent.get(expandedNode.x).get(expandedNode.y);
@@ -190,7 +191,6 @@ public class AgenteDFS extends AbstractPlayer {
             if (!obstacles.get(x).get(y + 1)) {
                 visited.get(up.x).set(up.y, true);
                 parent.get(up.x).set(up.y, expandedNode);
-                countExpandedNodes++;
                 found = DFSsearch(so, up);
             }
         }
@@ -203,7 +203,6 @@ public class AgenteDFS extends AbstractPlayer {
             if (!obstacles.get(x).get(y - 1)) {
                 visited.get(down.x).set(down.y, true);
                 parent.get(down.x).set(down.y, expandedNode);
-                countExpandedNodes++;
                 found = DFSsearch(so, down);
             }
         }
@@ -216,7 +215,6 @@ public class AgenteDFS extends AbstractPlayer {
             if (!obstacles.get(x - 1).get(y)) {
                 visited.get(left.x).set(left.y, true);
                 parent.get(left.x).set(left.y, expandedNode);
-                countExpandedNodes++;
                 found = DFSsearch(so, left);
             }
         }
@@ -230,7 +228,6 @@ public class AgenteDFS extends AbstractPlayer {
                 System.out.println("hellooooo");
                 visited.get(right.x).set(right.y, true);
                 parent.get(right.x).set(right.y, expandedNode);
-                countExpandedNodes++;
                 found = DFSsearch(so, right);
             }
         }
