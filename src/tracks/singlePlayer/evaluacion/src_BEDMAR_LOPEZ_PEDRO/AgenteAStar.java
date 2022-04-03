@@ -211,21 +211,17 @@ public class AgenteAStar extends AbstractPlayer {
         closedSize++;
 
         if (child.equals(parent.get(x).get(y))) {
-            System.out.println("Hola 1");;
+            System.out.println("Hola 1");
         } else {
             Vector2dInt closedNode = closed.get(child.x).get(child.y);
             Vector2dInt prevOpenNode = visited.get(child.x).get(child.y);
-            if (closedNode != null) {
-                if (child.g < closedNode.g) {
-                    closed.get(child.x).set(child.y, null);
-                    closedSize--;
-                    open.add(child);
-                    visited.get(child.x).set(child.y, child);
-                    parent.get(child.x).set(child.y, expandedNode);
-                    System.out.println("Hola 2");
-                } else {
-                    System.out.println("Hola 3");
-                }
+            if (closedNode != null && child.g < closedNode.g) {
+                closed.get(child.x).set(child.y, null);
+                closedSize--;
+                open.add(child);
+                visited.get(child.x).set(child.y, child);
+                parent.get(child.x).set(child.y, expandedNode);
+                System.out.println("Hola 2");
             } else if (closedNode == null && prevOpenNode == null) {
                 open.add(child);
                 visited.get(child.x).set(child.y, child);
