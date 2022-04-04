@@ -21,35 +21,41 @@ public class AgenteAStar extends AbstractPlayer {
         public int x;
         public int y;
         public int g;
+        public int c;
 
         public Vector2dInt() {
             this.x = 0;
             this.y = 0;
             this.g = -1;
+            this.c = 0;
         }
 
         public Vector2dInt(int x, int y) {
             this.x = x;
             this.y = y;
             this.g = -1;
+            this.c = 0;
         }
 
         public Vector2dInt(int x, int y, int g) {
             this.x = x;
             this.y = y;
             this.g = g;
+            this.c = 0;
         }
 
         public Vector2dInt(Vector2dInt v) {
             this.x = v.x;
             this.y = v.y;
             this.g = v.g;
+            this.c = 0;
         }
 
         public Vector2dInt(Vector2d v) {
             this.x = (int) v.x;
             this.y = (int) v.y;
             this.g = -1;
+            this.c = 0;
         }
 
         @Override
@@ -80,11 +86,20 @@ public class AgenteAStar extends AbstractPlayer {
     public class CostComparator implements Comparator<Vector2dInt> {
         @Override
         public int compare(Vector2dInt v1, Vector2dInt v2) {
-            return f(v1) - f(v2);
+            int result = f(v1) - f(v2);
+            if (result == 0) {
+                result = v1.g - v2.g;
+                if (result == 0) {
+                    //TODO: What can I do on this situation? How can I enforce the PriorityQueue to maintain insertion order? Is this way ok?
+                    result = v1.c - v2.c;
+                }
+            }
+            return result;
         }
     }
 
     public static Vector2dInt fscale;
+    public static int count;
 
     public static Vector2dInt portal;
     public static ArrayList<ArrayList<Boolean>> obstacles;
@@ -107,6 +122,7 @@ public class AgenteAStar extends AbstractPlayer {
     public AgenteAStar(StateObservation so, ElapsedCpuTimer elapsedTimer) {
         // scale factor to transform world to grid coordinates
         fscale = new Vector2dInt(so.getWorldDimension().width / so.getObservationGrid().length, so.getWorldDimension().height / so.getObservationGrid()[0].length);
+        count = 0;
 
         // store goal (portal) position
         ArrayList<Observation>[] portals = so.getPortalsPositions();
@@ -132,6 +148,7 @@ public class AgenteAStar extends AbstractPlayer {
         // start position in grid coordinates
         avatar_position = scale(so.getAvatarPosition());
         avatar_position.g = 0;
+        avatar_position.c = count;
 
         route_computed = false;
         comparator = new CostComparator();
@@ -211,7 +228,7 @@ public class AgenteAStar extends AbstractPlayer {
         closedSize++;
 
         if (child.equals(parent.get(x).get(y))) {
-            System.out.println("Hola 1");
+            //System.out.println("Hola 1");
         } else {
             Vector2dInt closedNode = closed.get(child.x).get(child.y);
             Vector2dInt prevOpenNode = visited.get(child.x).get(child.y);
@@ -221,18 +238,18 @@ public class AgenteAStar extends AbstractPlayer {
                 open.add(child);
                 visited.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                System.out.println("Hola 2");
+                //System.out.println("Hola 2");
             } else if (closedNode == null && prevOpenNode == null) {
                 open.add(child);
                 visited.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                System.out.println("Hola 3");
+                //System.out.println("Hola 3");
             } else if (prevOpenNode != null && child.g < prevOpenNode.g) {
                 open.remove(prevOpenNode);
                 open.add(child);
                 visited.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                System.out.println("Hola 4");
+                //System.out.println("Hola 4");
             }
         }
 
@@ -290,6 +307,8 @@ public class AgenteAStar extends AbstractPlayer {
                 if (y + 1 < so.getObservationGrid()[0].length) {
                     if (!obstacles.get(x).get(y + 1)) {
                         Vector2dInt up = new Vector2dInt(x, y + 1, g + 1);
+                        up.c = count;
+                        count++;
                         processChild(expandedNode, up);
                     }
                 }
@@ -297,6 +316,8 @@ public class AgenteAStar extends AbstractPlayer {
                 if (y - 1 >= 0) {
                     if (!obstacles.get(x).get(y - 1)) {
                         Vector2dInt down = new Vector2dInt(x, y - 1, g + 1);
+                        down.c = count;
+                        count++;
                         processChild(expandedNode, down);
                     }
                 }
@@ -304,6 +325,8 @@ public class AgenteAStar extends AbstractPlayer {
                 if (x - 1 >= 0) {
                     if (!obstacles.get(x - 1).get(y)) {
                         Vector2dInt left = new Vector2dInt(x - 1, y, g + 1);
+                        left.c = count;
+                        count++;
                         processChild(expandedNode, left);
                     }
                 }
@@ -311,6 +334,8 @@ public class AgenteAStar extends AbstractPlayer {
                 if (x + 1 < so.getObservationGrid().length) {
                     if (!obstacles.get(x + 1).get(y)) {
                         Vector2dInt right = new Vector2dInt(x + 1, y, g + 1);
+                        right.c = count;
+                        count++;
                         processChild(expandedNode, right);
                     }
                 }
