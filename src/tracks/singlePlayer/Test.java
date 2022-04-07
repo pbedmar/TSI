@@ -42,7 +42,7 @@ public class Test {
 
 		// Game and level to play
 		int gameIdx = 58; // camel = 15 labyrinth = 58
-		int levelIdx = 7; // level names from 0 to 4 (game_lvlN.txt).
+		int levelIdx = 10; // level names from 0 to 4 (game_lvlN.txt).
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
 		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);

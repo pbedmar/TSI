@@ -146,18 +146,18 @@ public class AgenteBFS extends AbstractPlayer {
         int x = expandedNode.x;
         int y = expandedNode.y;
 
-        Vector2dInt up = new Vector2dInt(x, y + 1);
-        if (y + 1 < so.getObservationGrid()[0].length && !visited.get(up.x).get(up.y)) {
-            if (!obstacles.get(x).get(y + 1)) {
+        Vector2dInt up = new Vector2dInt(x, y - 1);
+        if (y - 1 >= 0 && !visited.get(up.x).get(up.y)) {
+            if (!obstacles.get(x).get(y - 1)) {
                 visited.get(up.x).set(up.y, true);
                 parent.get(up.x).set(up.y, expandedNode);
                 queue.addLast(up);
             }
         }
 
-        Vector2dInt down = new Vector2dInt(x, y - 1);
-        if (y - 1 >= 0 && !visited.get(down.x).get(down.y)) {
-            if (!obstacles.get(x).get(y - 1)) {
+        Vector2dInt down = new Vector2dInt(x, y + 1);
+        if (y + 1 < so.getObservationGrid()[0].length && !visited.get(down.x).get(down.y)) {
+            if (!obstacles.get(x).get(y + 1)) {
                 visited.get(down.x).set(down.y, true);
                 parent.get(down.x).set(down.y, expandedNode);
                 queue.addLast(down);

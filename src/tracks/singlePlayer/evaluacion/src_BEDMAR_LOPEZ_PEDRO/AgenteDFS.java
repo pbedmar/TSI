@@ -138,13 +138,9 @@ public class AgenteDFS extends AbstractPlayer {
                 (int) position.y / fscale.y);
     }
 
-    public boolean DFS(StateObservation so, Vector2dInt expandedNode) {
-        // add start node to the queue
-        visited.get(expandedNode.x).set(expandedNode.y, true);
-        parent.get(expandedNode.x).set(expandedNode.y, null);
-
-        return DFSsearch(so, expandedNode);
-    }
+//    public boolean DFS(StateObservation so, Vector2dInt expandedNode) {
+//
+//    }
 
     // generate up, down, left and right children. they are generated only if:
     //      -> they are inside the grid
@@ -177,7 +173,6 @@ public class AgenteDFS extends AbstractPlayer {
             }
 
             route_computed = true;
-
             return true;
 
         }
@@ -186,9 +181,9 @@ public class AgenteDFS extends AbstractPlayer {
         int y = expandedNode.y;
         boolean found = false;
 
-        Vector2dInt up = new Vector2dInt(x, y + 1);
-        if (y + 1 < so.getObservationGrid()[0].length && !visited.get(up.x).get(up.y)) {
-            if (!obstacles.get(x).get(y + 1)) {
+        Vector2dInt up = new Vector2dInt(x, y - 1);
+        if (y - 1 >= 0) {
+            if (!obstacles.get(x).get(y - 1) && !visited.get(up.x).get(up.y)) {
                 visited.get(up.x).set(up.y, true);
                 parent.get(up.x).set(up.y, expandedNode);
                 found = DFSsearch(so, up);
@@ -198,9 +193,9 @@ public class AgenteDFS extends AbstractPlayer {
         if (found)
             return true;
 
-        Vector2dInt down = new Vector2dInt(x, y - 1);
-        if (y - 1 >= 0 && !visited.get(down.x).get(down.y)) {
-            if (!obstacles.get(x).get(y - 1)) {
+        Vector2dInt down = new Vector2dInt(x, y + 1);
+        if (y + 1 < so.getObservationGrid()[0].length) {
+            if (!obstacles.get(x).get(y + 1) && !visited.get(down.x).get(down.y)) {
                 visited.get(down.x).set(down.y, true);
                 parent.get(down.x).set(down.y, expandedNode);
                 found = DFSsearch(so, down);
@@ -211,8 +206,8 @@ public class AgenteDFS extends AbstractPlayer {
             return true;
 
         Vector2dInt left = new Vector2dInt(x - 1, y);
-        if (x - 1 >= 0 && !visited.get(left.x).get(left.y)) {
-            if (!obstacles.get(x - 1).get(y)) {
+        if (x - 1 >= 0) {
+            if (!obstacles.get(x - 1).get(y) && !visited.get(left.x).get(left.y)) {
                 visited.get(left.x).set(left.y, true);
                 parent.get(left.x).set(left.y, expandedNode);
                 found = DFSsearch(so, left);
@@ -223,9 +218,8 @@ public class AgenteDFS extends AbstractPlayer {
             return true;
 
         Vector2dInt right = new Vector2dInt(x + 1, y);
-        if (x + 1 < so.getObservationGrid().length && !visited.get(right.x).get(right.y)) {
-            if (!obstacles.get(x + 1).get(y)) {
-                System.out.println("hellooooo");
+        if (x + 1 < so.getObservationGrid().length) {
+            if (!obstacles.get(x + 1).get(y) && !visited.get(right.x).get(right.y)) {
                 visited.get(right.x).set(right.y, true);
                 parent.get(right.x).set(right.y, expandedNode);
                 found = DFSsearch(so, right);
@@ -247,7 +241,11 @@ public class AgenteDFS extends AbstractPlayer {
             double total = 0;
 
 
-            DFS(so, avatar_position);
+            // add start node to the queue
+            visited.get(avatar_position.x).set(avatar_position.y, true);
+            parent.get(avatar_position.x).set(avatar_position.y, null);
+
+            DFSsearch(so, avatar_position);
 
 
             // end measuring execution time

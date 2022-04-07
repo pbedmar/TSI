@@ -150,36 +150,36 @@ public class AgenteIDAStar extends AbstractPlayer {
         int x = expandedNode.x;
         int y = expandedNode.y;
 
-        Vector2dInt up = new Vector2dInt(x, y + 1); //TODO: Cambiar up-down en todos los algoritmos menos en este!!!
-        if (y + 1 < so.getObservationGrid()[0].length) {
-            if (!obstacles.get(x).get(y + 1)) {
-                if (!visited.get(x).get(y + 1)) {
+        Vector2dInt up = new Vector2dInt(x, y - 1); //TODO: Cambiar up-down en todos los algoritmos menos en este!!!
+        if (y - 1 < so.getObservationGrid()[0].length) {
+            if (!obstacles.get(x).get(y - 1)) {
+                if (!visited.get(x).get(y - 1)) {
                     queue.addLast(up);
-                    visited.get(x).set(y + 1, true);
+                    visited.get(x).set(y - 1, true);
                     int t = search(so, g + 1, threshold);
                     if (t == -1) return -1;
                     if (t < min) {
                         min = t;
                     }
                     queue.removeLast();
-                    visited.get(x).set(y + 1, false);
+                    visited.get(x).set(y - 1, false);
                 }
             }
         }
 
-        Vector2dInt down = new Vector2dInt(x, y - 1);
-        if (y - 1 >= 0) {
-            if (!obstacles.get(x).get(y - 1)) {
-                if (!visited.get(x).get(y - 1)) {
+        Vector2dInt down = new Vector2dInt(x, y + 1);
+        if (y + 1 >= 0) {
+            if (!obstacles.get(x).get(y + 1)) {
+                if (!visited.get(x).get(y + 1)) {
                     queue.addLast(down);
-                    visited.get(x).set(y - 1, true);
+                    visited.get(x).set(y + 1, true);
                     int t = search(so, g+1, threshold);
                     if (t == -1) return -1;
                     if (t < min) {
                         min = t;
                     }
                     queue.removeLast();
-                    visited.get(x).set(y - 1, false);
+                    visited.get(x).set(y + 1, false);
                 }
             }
         }

@@ -304,18 +304,18 @@ public class AgenteAStar extends AbstractPlayer {
                 int y = expandedNode.y;
                 int g = expandedNode.g;
 
-                if (y + 1 < so.getObservationGrid()[0].length) {
-                    if (!obstacles.get(x).get(y + 1)) {
-                        Vector2dInt up = new Vector2dInt(x, y + 1, g + 1);
+                if (y - 1 < so.getObservationGrid()[0].length) {
+                    if (!obstacles.get(x).get(y - 1)) {
+                        Vector2dInt up = new Vector2dInt(x, y - 1, g + 1);
                         up.c = count;
                         count++;
                         processChild(expandedNode, up);
                     }
                 }
 
-                if (y - 1 >= 0) {
-                    if (!obstacles.get(x).get(y - 1)) {
-                        Vector2dInt down = new Vector2dInt(x, y - 1, g + 1);
+                if (y + 1 >= 0) {
+                    if (!obstacles.get(x).get(y + 1)) {
+                        Vector2dInt down = new Vector2dInt(x, y + 1, g + 1);
                         down.c = count;
                         count++;
                         processChild(expandedNode, down);
