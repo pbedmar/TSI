@@ -20,8 +20,8 @@ public class AgenteAStar extends AbstractPlayer {
          */
         public int x;
         public int y;
-        public int g;
-        public int c;
+        public int g;  // g component of the heuristic function
+        public int c;  // count value used to order nodes in a FIFO fashion
 
         public Vector2dInt() {
             this.x = 0;
@@ -75,6 +75,7 @@ public class AgenteAStar extends AbstractPlayer {
 
     }
 
+    // manhattan distance between two points in the grid
     public int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
         return Math.abs(n1.x - n2.x) + Math.abs(n1.y - n2.y);
     }
@@ -83,6 +84,8 @@ public class AgenteAStar extends AbstractPlayer {
         return node.g + manhattanDistance(node, portal);
     }
 
+    // used to order the PriorityQueue. the lower the value, the bigger priority.
+    // firstly ordered by f, if they are equal ordered by g, if they are equal ordered using FIFO.
     public class CostComparator implements Comparator<Vector2dInt> {
         @Override
         public int compare(Vector2dInt v1, Vector2dInt v2) {
@@ -108,7 +111,7 @@ public class AgenteAStar extends AbstractPlayer {
     public static boolean route_computed;
     public static CostComparator comparator;
     public static PriorityQueue<Vector2dInt> open;
-    public static ArrayList<ArrayList<Vector2dInt>> visited;
+    public static ArrayList<ArrayList<Vector2dInt>> openAux; // auxiliary data structure used to access a node in the open queue in O(1), given it's coordinates
     public static ArrayList<ArrayList<Vector2dInt>> closed;
     public static int closedSize;
     public static ArrayList<ArrayList<Vector2dInt>> parent;
@@ -145,7 +148,7 @@ public class AgenteAStar extends AbstractPlayer {
             }
         }
 
-        // start position in grid coordinates
+        // start position initialization
         avatar_position = scale(so.getAvatarPosition());
         avatar_position.g = 0;
         avatar_position.c = count;
@@ -154,16 +157,16 @@ public class AgenteAStar extends AbstractPlayer {
         comparator = new CostComparator();
         open = new PriorityQueue<>(comparator);
 
-        // initialize openBest matrix, null by default
-        visited = new ArrayList<>(so.getObservationGrid().length);
+        // initialize openAux matrix, null values by default
+        openAux = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
-            visited.add(new ArrayList<>(so.getObservationGrid()[0].length));
+            openAux.add(new ArrayList<>(so.getObservationGrid()[0].length));
             for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
-                visited.get(i).add(null);
+                openAux.get(i).add(null);
             }
         }
 
-        // initialize closed matrix, null by default
+        // initialize closed queue (represented by a matrix), null by default
         closed = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
             closed.add(new ArrayList<>(so.getObservationGrid()[0].length));
@@ -185,28 +188,6 @@ public class AgenteAStar extends AbstractPlayer {
         actions = new LinkedList<>();
         countExpandedNodes = 0;
         maxMemoryConsumption = 0;
-
-//        PriorityQueue<Vector2dInt> p = new PriorityQueue<>(comparator);
-//        Vector2dInt v1 = new Vector2dInt(1,2);
-//        v1.g = 2;
-//        Vector2dInt v2 = new Vector2dInt(1,2);
-//        v2.g = 3;
-//        Vector2dInt v3 = new Vector2dInt(4,7);
-//        v3.g = 1;
-//
-//        p.add(v1);
-//        p.add(v2);
-//        p.add(v3);
-
-//        if (p.contains(v2)) {
-//            System.out.println("true");
-//        }
-//        System.out.println(p.peek());
-//        System.out.println(p.remove().g);
-//        System.out.println(p.peek());
-//        System.out.println(p.remove().g);
-//        System.out.println(p.peek());
-//        System.out.println(p.remove().g);
     }
 
     // world coordinates to grid coordinates
@@ -224,32 +205,36 @@ public class AgenteAStar extends AbstractPlayer {
     public void processChild(Vector2dInt expandedNode, Vector2dInt child) {
         int x = expandedNode.x;
         int y = expandedNode.y;
-        closed.get(expandedNode.x).set(expandedNode.y, expandedNode);
-        closedSize++;
 
+        // if child equals grandparent do nothing
         if (child.equals(parent.get(x).get(y))) {
-            //System.out.println("Hola 1");
+            ;
         } else {
+            // null if the child is not in the closed queue. if it is, get it to access g
             Vector2dInt closedNode = closed.get(child.x).get(child.y);
-            Vector2dInt prevOpenNode = visited.get(child.x).get(child.y);
+            // null if the child is not in the open queue. if it is, get it to access g
+            Vector2dInt prevOpenNode = openAux.get(child.x).get(child.y);
+
+            // if the child is already in the closed queue and its g was bigger than now,
+            // remove it from closed and add it to open
             if (closedNode != null && child.g < closedNode.g) {
                 closed.get(child.x).set(child.y, null);
                 closedSize--;
                 open.add(child);
-                visited.get(child.x).set(child.y, child);
+                openAux.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                //System.out.println("Hola 2");
+            // if the child is neither in closed nor open queue, add it to open
             } else if (closedNode == null && prevOpenNode == null) {
                 open.add(child);
-                visited.get(child.x).set(child.y, child);
+                openAux.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                //System.out.println("Hola 3");
+            // if the child is already in the open queue and its g was bigger than now,
+            // update it with the newer g.
             } else if (prevOpenNode != null && child.g < prevOpenNode.g) {
                 open.remove(prevOpenNode);
                 open.add(child);
-                visited.get(child.x).set(child.y, child);
+                openAux.get(child.x).set(child.y, child);
                 parent.get(child.x).set(child.y, expandedNode);
-                //System.out.println("Hola 4");
             }
         }
 
@@ -264,21 +249,26 @@ public class AgenteAStar extends AbstractPlayer {
 
             // start measuring execution time
             double tStart = System.nanoTime();
-            double total = 0;
 
+            //add start node to the open queue
             open.add(avatar_position);
-            visited.get(avatar_position.x).set(avatar_position.y, avatar_position);
+            openAux.get(avatar_position.x).set(avatar_position.y, avatar_position);
+
 
             while (true) {
-
+                // extract the node with lower cost in the open queue
                 Vector2dInt expandedNode = open.remove();
+                openAux.get(expandedNode.x).set(expandedNode.y, null);
                 countExpandedNodes++;
+
+                // if the expanded node is the goal
                 if (expandedNode.equals(portal)) {
                     Vector2dInt child_node = expandedNode;
                     Vector2dInt parent_node = parent.get(expandedNode.x).get(expandedNode.y);
 
                     // using the parent-child relationship, generate actions to be performed by the agent.
                     // start from the goal node and end in the start node
+                    // store the actions in the actions list
                     while (parent_node != null) {
                         if (parent_node.y - child_node.y < 0) {
                             actions.addLast(Types.ACTIONS.ACTION_DOWN);
@@ -292,11 +282,10 @@ public class AgenteAStar extends AbstractPlayer {
 
                         child_node = parent_node;
                         parent_node = parent.get(parent_node.x).get(parent_node.y);
-
                     }
 
-                    System.out.println(actions.size());
                     route_computed = true;
+                    // exit the loop
                     break;
                 }
 
@@ -304,6 +293,12 @@ public class AgenteAStar extends AbstractPlayer {
                 int y = expandedNode.y;
                 int g = expandedNode.g;
 
+                // generate up, down, left and right children. they are generated only if:
+                //      -> they are inside the grid
+                //      -> there are no obstacles on that position
+                // by following these rules, they are passed to the processChild() function.
+                // the c attribute is used to store the order in which the children are added to the queue,
+                // so in case of draw of the f and g values, we can use that order.
                 if (y - 1 < so.getObservationGrid()[0].length) {
                     if (!obstacles.get(x).get(y - 1)) {
                         Vector2dInt up = new Vector2dInt(x, y - 1, g + 1);
@@ -340,6 +335,11 @@ public class AgenteAStar extends AbstractPlayer {
                     }
                 }
 
+                // insert the expanded node in the closed queue
+                closed.get(expandedNode.x).set(expandedNode.y, expandedNode);
+                closedSize++;
+
+                // check closed + open queues size. stores the maximum size reached during the program execution
                 int memoryConsumption = closedSize + open.size();
                 if (memoryConsumption > maxMemoryConsumption) {
                     maxMemoryConsumption = memoryConsumption;
@@ -349,11 +349,7 @@ public class AgenteAStar extends AbstractPlayer {
 
             // end measuring execution time
             double tEnd = System.nanoTime();
-            double totalTimeInSeconds = (tEnd - tStart) / 1000000000;
-
-            for (Types.ACTIONS ac: actions) {
-                System.out.println(ac);
-            }
+            double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
             // log results -- runtime
             System.out.println("RUNTIME: " + totalTimeInSeconds);

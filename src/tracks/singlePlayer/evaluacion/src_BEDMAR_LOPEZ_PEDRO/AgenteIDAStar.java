@@ -150,7 +150,7 @@ public class AgenteIDAStar extends AbstractPlayer {
         int x = expandedNode.x;
         int y = expandedNode.y;
 
-        Vector2dInt up = new Vector2dInt(x, y - 1); //TODO: Cambiar up-down en todos los algoritmos menos en este!!!
+        Vector2dInt up = new Vector2dInt(x, y - 1);
         if (y - 1 < so.getObservationGrid()[0].length) {
             if (!obstacles.get(x).get(y - 1)) {
                 if (!visited.get(x).get(y - 1)) {
@@ -271,7 +271,7 @@ public class AgenteIDAStar extends AbstractPlayer {
 
             // end measuring execution time
             double tEnd = System.nanoTime();
-            double totalTimeInSeconds = (tEnd - tStart) / 1000000000;
+            double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
             // log results -- runtime
             System.out.println("RUNTIME: " + totalTimeInSeconds);

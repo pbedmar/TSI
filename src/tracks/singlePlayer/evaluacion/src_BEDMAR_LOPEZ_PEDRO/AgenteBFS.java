@@ -192,7 +192,6 @@ public class AgenteBFS extends AbstractPlayer {
 
             // start measuring execution time
             double tStart = System.nanoTime();
-            double total = 0;
 
             // add start node to the queue
             visited.get(avatar_position.x).set(avatar_position.y, true);
@@ -211,6 +210,7 @@ public class AgenteBFS extends AbstractPlayer {
 
                     // using the parent-child relationship, generate actions to be performed by the agent.
                     // start from the goal node and end in the start node
+                    // store the actions in the actions list
                     while (parent_node != null) {
                         if (parent_node.y - child_node.y < 0) {
                             actions.addLast(Types.ACTIONS.ACTION_DOWN);
@@ -237,14 +237,11 @@ public class AgenteBFS extends AbstractPlayer {
 
             // end measuring execution time
             double tEnd = System.nanoTime();
-            double totalTimeInSeconds = (tEnd - tStart) / 1000000000;
+            double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
-            for (Types.ACTIONS ac: actions) {
-                System.out.println(ac);
-            }
 
             // log results -- runtime
-            System.out.println("RUNTIME: " + totalTimeInSeconds);
+            System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
             // log results -- route length
             System.out.println("TAMANO DE LA RUTA: " + actions.size());

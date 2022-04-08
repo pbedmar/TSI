@@ -65,7 +65,6 @@ public class AgenteDFS extends AbstractPlayer {
     public static Vector2dInt avatar_position;
 
     public static boolean route_computed;
-    public static LinkedList<Vector2dInt> queue;
     public static ArrayList<ArrayList<Vector2dInt>> parent;
     public static ArrayList<ArrayList<Boolean>> visited;
 
@@ -102,7 +101,6 @@ public class AgenteDFS extends AbstractPlayer {
         avatar_position = scale(so.getAvatarPosition());
 
         route_computed = false;
-        queue = new LinkedList<>();
 
         // initialize parent matrix, null parent by default
         parent = new ArrayList<>(so.getObservationGrid().length);
@@ -138,25 +136,19 @@ public class AgenteDFS extends AbstractPlayer {
                 (int) position.y / fscale.y);
     }
 
-//    public boolean DFS(StateObservation so, Vector2dInt expandedNode) {
-//
-//    }
-
-    // generate up, down, left and right children. they are generated only if:
-    //      -> they are inside the grid
-    //      -> they haven't been visited before
-    //      -> there are no obstacles on that position
-    // by following these rules, they are marked as visited, get a parent assigned and are added to the queue
+    // explore the map in a recursive fashion
     public boolean DFSsearch(StateObservation so, Vector2dInt expandedNode) {
-        System.out.println(expandedNode);
 
         countExpandedNodes++;
+
+        // if the expanded node is the goal
         if (expandedNode.equals(portal)) {
             Vector2dInt child_node = expandedNode;
             Vector2dInt parent_node = parent.get(expandedNode.x).get(expandedNode.y);
 
-            // using the parent-child relationship, generate actions to be performed by the agent.
+            // using the parent-child relationship to generate the actions to be performed by the agent.
             // start from the goal node and end in the start node
+            // store the actions in the actions list
             while (parent_node != null) {
                 if (parent_node.y - child_node.y < 0) {
                     actions.addLast(Types.ACTIONS.ACTION_DOWN);
@@ -181,6 +173,13 @@ public class AgenteDFS extends AbstractPlayer {
         int y = expandedNode.y;
         boolean found = false;
 
+        // generate up, down, left and right children. they are generated only if:
+        //      -> they are inside the grid
+        //      -> they haven't been visited before
+        //      -> there are no obstacles on that position
+        // by following these rules, they are marked as visited, get a parent assigned DFSSearch is called recursively.
+        // if the result is true (solution found in the branch), return true. if any branch contains the solution,
+        // return false at the end.
         Vector2dInt up = new Vector2dInt(x, y - 1);
         if (y - 1 >= 0) {
             if (!obstacles.get(x).get(y - 1) && !visited.get(up.x).get(up.y)) {
@@ -240,24 +239,20 @@ public class AgenteDFS extends AbstractPlayer {
             double tStart = System.nanoTime();
             double total = 0;
 
-
-            // add start node to the queue
+            // mark starting node as visited, assign null parent to it.
             visited.get(avatar_position.x).set(avatar_position.y, true);
             parent.get(avatar_position.x).set(avatar_position.y, null);
 
+            // in-depth search of the solution
             DFSsearch(so, avatar_position);
 
 
             // end measuring execution time
             double tEnd = System.nanoTime();
-            double totalTimeInSeconds = (tEnd - tStart) / 1000000000;
-
-            for (Types.ACTIONS ac: actions) {
-                System.out.println(ac);
-            }
+            double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
             // log results -- runtime
-            System.out.println("RUNTIME: " + totalTimeInSeconds);
+            System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
             // log results -- route length
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
