@@ -96,7 +96,11 @@ public class AgenteRTAStar extends AbstractPlayer {
 
     public static ArrayList<ArrayList<Integer>> hMatrix;
     public static CostComparator comparator;
+    public static ArrayList<ArrayList<Boolean>> visited;
 
+    public static double runtime;
+    public static int routeLength;
+    public static int countExpandedNodes;
 
     public AgenteRTAStar(StateObservation so, ElapsedCpuTimer elapsedTimer) {
         // scale factor to transform world to grid coordinates
@@ -137,6 +141,18 @@ public class AgenteRTAStar extends AbstractPlayer {
 
         comparator = new CostComparator();
 
+        // initialize visited matrix, false by default
+        visited = new ArrayList<>(so.getObservationGrid().length);
+        for (int i = 0; i < so.getObservationGrid().length; i++) {
+            visited.add(new ArrayList<>(so.getObservationGrid()[0].length));
+            for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
+                visited.get(i).add(false);
+            }
+        }
+
+        runtime = 0;
+        routeLength = 0;
+        countExpandedNodes = 0;
     }
 
     // world coordinates to grid coordinates
@@ -189,38 +205,70 @@ public class AgenteRTAStar extends AbstractPlayer {
     }
 
     public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer) {
-        if(avatar_position.equals(portal)) {
-            return Types.ACTIONS.ACTION_NIL;
-        } else {
 
-            PriorityQueue<Vector2dInt> queue = getOrderedChildren(so, avatar_position);
+        // start measuring execution time
+        double tStart = System.nanoTime();
 
-            Vector2dInt bestChild = queue.remove();
-            Vector2dInt secondBestChild = bestChild;
-            if (queue.size() > 0) {
-                secondBestChild = queue.peek();
-            }
+        countExpandedNodes++;
 
-            int currentNodeH = hMatrix.get(avatar_position.x).get(avatar_position.y);
-            int secondBestChildCost = hMatrix.get(secondBestChild.x).get(secondBestChild.y) + 1;
+        PriorityQueue<Vector2dInt> queue = getOrderedChildren(so, avatar_position);
 
-            int currentNodeUpdatedH = Math.max(currentNodeH, secondBestChildCost);
-            hMatrix.get(avatar_position.x).set(avatar_position.y, currentNodeUpdatedH);
-
-            Types.ACTIONS result = Types.ACTIONS.ACTION_NIL;
-            if (avatar_position.y - bestChild.y < 0) {
-                result = Types.ACTIONS.ACTION_DOWN;
-            } else if (avatar_position.y - bestChild.y > 0) {
-                result = Types.ACTIONS.ACTION_UP;
-            } else if (avatar_position.x - bestChild.x < 0) {
-                result = Types.ACTIONS.ACTION_RIGHT;
-            } else if (avatar_position.x - bestChild.x > 0) {
-                result = Types.ACTIONS.ACTION_LEFT;
-            }
-
-            avatar_position = bestChild;
-
-            return result;
+        Vector2dInt bestChild = queue.remove();
+        Vector2dInt secondBestChild = bestChild;
+        if (queue.size() > 0) {
+            secondBestChild = queue.peek();
         }
+
+        int currentNodeH = hMatrix.get(avatar_position.x).get(avatar_position.y);
+        int secondBestChildH= hMatrix.get(secondBestChild.x).get(secondBestChild.y) + 1;
+
+        int currentNodeUpdatedH = Math.max(currentNodeH, secondBestChildH);
+        hMatrix.get(avatar_position.x).set(avatar_position.y, currentNodeUpdatedH);
+        visited.get(avatar_position.x).set(avatar_position.y, true);
+
+        Types.ACTIONS result = Types.ACTIONS.ACTION_NIL;
+        if (avatar_position.y - bestChild.y < 0) {
+            result = Types.ACTIONS.ACTION_DOWN;
+        } else if (avatar_position.y - bestChild.y > 0) {
+            result = Types.ACTIONS.ACTION_UP;
+        } else if (avatar_position.x - bestChild.x < 0) {
+            result = Types.ACTIONS.ACTION_RIGHT;
+        } else if (avatar_position.x - bestChild.x > 0) {
+            result = Types.ACTIONS.ACTION_LEFT;
+        }
+
+        avatar_position = bestChild;
+
+        // end measuring execution time
+        double tEnd = System.nanoTime();
+        double totalTimeInSeconds = (tEnd - tStart) / 1000000;
+        runtime += totalTimeInSeconds;
+        routeLength++;
+
+        if(avatar_position.equals(portal)) {
+
+            int maxMemoryConsumption = 0;
+            for (int i = 0; i < so.getObservationGrid().length; i++) {
+                for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
+                    if (visited.get(i).get(j)) {
+                        maxMemoryConsumption++;
+                    }
+                }
+            }
+
+            // log results -- runtime
+            System.out.println("RUNTIME: " + runtime);
+
+            // log results -- route length
+            System.out.println("TAMANO DE LA RUTA: " + routeLength);
+
+            // log results -- nb. of expanded nodes
+            System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
+
+            // log results -- max nb. of nodes in memory
+            System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
+        }
+
+        return result;
     }
 }
