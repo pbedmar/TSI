@@ -8,7 +8,9 @@ import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 public class AgenteIDAStar extends AbstractPlayer {
 
@@ -19,30 +21,36 @@ public class AgenteIDAStar extends AbstractPlayer {
          */
         public int x;
         public int y;
+        public int c;
 
         public Vector2dInt() {
             this.x = 0;
             this.y = 0;
+            this.c = 0;
         }
 
         public Vector2dInt(int x, int y) {
             this.x = x;
             this.y = y;
+            this.c = 0;
         }
 
-        public Vector2dInt(int x, int y, int g) {
+        public Vector2dInt(int x, int y, int c) {
             this.x = x;
             this.y = y;
+            this.c = c;
         }
 
         public Vector2dInt(Vector2dInt v) {
             this.x = v.x;
             this.y = v.y;
+            this.c = v.c;
         }
 
         public Vector2dInt(Vector2d v) {
             this.x = (int) v.x;
             this.y = (int) v.y;
+            this.c = 0;
         }
 
         @Override
@@ -62,8 +70,19 @@ public class AgenteIDAStar extends AbstractPlayer {
 
     }
 
-    public int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
+    public static int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
         return Math.abs(n1.x - n2.x) + Math.abs(n1.y - n2.y);
+    }
+
+    public static class CostComparator implements Comparator<Vector2dInt> {
+        @Override
+        public int compare(Vector2dInt v1, Vector2dInt v2) {
+            int result = manhattanDistance(v1, portal) - manhattanDistance(v2, portal);
+            if (result == 0) {
+                result = v1.c - v2.c;
+            }
+            return result;
+        }
     }
 
     public static Vector2dInt fscale;
@@ -73,11 +92,13 @@ public class AgenteIDAStar extends AbstractPlayer {
     public static Vector2dInt avatar_position;
 
     public static boolean route_computed;
+    public static Comparator<Vector2dInt> comparator;
     public static LinkedList<Vector2dInt> queue;
     public static ArrayList<ArrayList<Boolean>> visited;
 
     public static LinkedList<Types.ACTIONS> actions;
     public static int countExpandedNodes;
+    public static int maxMemoryConsumption;
 
 
     public AgenteIDAStar(StateObservation so, ElapsedCpuTimer elapsedTimer) {
@@ -109,6 +130,8 @@ public class AgenteIDAStar extends AbstractPlayer {
         avatar_position = scale(so.getAvatarPosition());
         route_computed = false;
 
+        comparator = new CostComparator();
+
         queue = new LinkedList<>();
         // initialize visited matrix, false by default
         visited = new ArrayList<>(so.getObservationGrid().length);
@@ -120,6 +143,9 @@ public class AgenteIDAStar extends AbstractPlayer {
         }
 
         actions = new LinkedList<>();
+
+        countExpandedNodes = 0;
+        maxMemoryConsumption = 0;
     }
 
     // world coordinates to grid coordinates
@@ -137,10 +163,16 @@ public class AgenteIDAStar extends AbstractPlayer {
     public int search(StateObservation so, int g, int threshold) {
         Vector2dInt expandedNode = queue.getLast(); //TODO: getLast() or removeLast()?
 
+        if(g + 1 > maxMemoryConsumption) {
+            maxMemoryConsumption = g + 1;
+        }
+
         int f = g + manhattanDistance(expandedNode, portal);
         if (f > threshold) {
             return f;
         }
+
+        countExpandedNodes++;
         if (expandedNode.equals(portal)) {
             return -1;
         }
@@ -150,72 +182,55 @@ public class AgenteIDAStar extends AbstractPlayer {
         int x = expandedNode.x;
         int y = expandedNode.y;
 
-        Vector2dInt up = new Vector2dInt(x, y - 1);
+        PriorityQueue<Vector2dInt> children = new PriorityQueue<>(comparator);
+
+        Vector2dInt up = new Vector2dInt(x, y - 1, 0);
         if (y - 1 < so.getObservationGrid()[0].length) {
             if (!obstacles.get(x).get(y - 1)) {
                 if (!visited.get(x).get(y - 1)) {
-                    queue.addLast(up);
-                    visited.get(x).set(y - 1, true);
-                    int t = search(so, g + 1, threshold);
-                    if (t == -1) return -1;
-                    if (t < min) {
-                        min = t;
-                    }
-                    queue.removeLast();
-                    visited.get(x).set(y - 1, false);
+                    children.add(up);
                 }
             }
         }
 
-        Vector2dInt down = new Vector2dInt(x, y + 1);
+        Vector2dInt down = new Vector2dInt(x, y + 1, 1);
         if (y + 1 >= 0) {
             if (!obstacles.get(x).get(y + 1)) {
                 if (!visited.get(x).get(y + 1)) {
-                    queue.addLast(down);
-                    visited.get(x).set(y + 1, true);
-                    int t = search(so, g+1, threshold);
-                    if (t == -1) return -1;
-                    if (t < min) {
-                        min = t;
-                    }
-                    queue.removeLast();
-                    visited.get(x).set(y + 1, false);
+                    children.add(down);
                 }
             }
         }
 
-        Vector2dInt left = new Vector2dInt(x - 1, y);
+        Vector2dInt left = new Vector2dInt(x - 1, y, 2);
         if (x - 1 >= 0) {
             if (!obstacles.get(x - 1).get(y)) {
                 if (!visited.get(x - 1).get(y)) {
-                    queue.addLast(left);
-                    visited.get(x - 1).set(y, true);
-                    int t = search(so, g+1, threshold);
-                    if (t == -1) return -1;
-                    if (t < min) {
-                        min = t;
-                    }
-                    queue.removeLast();
-                    visited.get(x - 1).set(y, false);
+                    children.add(left);
                 }
             }
         }
 
-        Vector2dInt right = new Vector2dInt(x + 1, y);
+        Vector2dInt right = new Vector2dInt(x + 1, y, 3);
         if (x + 1 < so.getObservationGrid().length) {
             if (!obstacles.get(x + 1).get(y)) {
                 if (!visited.get(x + 1).get(y)) {
-                    queue.addLast(right);
-                    visited.get(x + 1).set(y, true);
-                    int t = search(so, g+1, threshold);
-                    if (t == -1) return -1;
-                    if (t < min) {
-                        min = t;
-                    }
-                    queue.removeLast();
-                    visited.get(x + 1).set(y, false);
+                    children.add(right);
                 }
             }
+        }
+
+        while (!children.isEmpty()) {
+            Vector2dInt child = children.remove();
+            queue.addLast(child);
+            visited.get(child.x).set(child.y, true);
+            int t = search(so, g + 1, threshold);
+            if (t == -1) return -1;
+            if (t < min) {
+                min = t;
+            }
+            queue.removeLast();
+            visited.get(child.x).set(child.y, false);
         }
 
 
@@ -280,10 +295,10 @@ public class AgenteIDAStar extends AbstractPlayer {
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
 
             // log results -- nb. of expanded nodes
-            //System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
+            System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
             // log results -- max nb. of nodes in memory
-            //System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
+            System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
         }
 
         // get next action to be performed by the agent
