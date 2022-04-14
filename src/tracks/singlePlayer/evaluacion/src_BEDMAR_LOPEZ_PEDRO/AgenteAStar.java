@@ -152,6 +152,7 @@ public class AgenteAStar extends AbstractPlayer {
         avatar_position = scale(so.getAvatarPosition());
         avatar_position.g = 0;
         avatar_position.c = count;
+        count++;
 
         route_computed = false;
         comparator = new CostComparator();
@@ -352,7 +353,7 @@ public class AgenteAStar extends AbstractPlayer {
             double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
             // log results -- runtime
-            System.out.println("RUNTIME: " + totalTimeInSeconds);
+            System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
             // log results -- route length
             System.out.println("TAMANO DE LA RUTA: " + actions.size());

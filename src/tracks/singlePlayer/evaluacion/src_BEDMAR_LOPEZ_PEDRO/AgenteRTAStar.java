@@ -177,6 +177,7 @@ public class AgenteRTAStar extends AbstractPlayer {
         if (y - 1 >= 0) {
             if (!obstacles.get(x).get(y - 1)) {
                 queue.add(up);
+                visited.get(up.x).set(up.y, true);
             }
         }
 
@@ -184,6 +185,7 @@ public class AgenteRTAStar extends AbstractPlayer {
         if (y + 1 < so.getObservationGrid()[0].length) {
             if (!obstacles.get(x).get(y + 1)) {
                 queue.add(down);
+                visited.get(down.x).set(down.y, true);
             }
         }
 
@@ -191,6 +193,7 @@ public class AgenteRTAStar extends AbstractPlayer {
         if (x - 1 >= 0) {
             if (!obstacles.get(x - 1).get(y)) {
                 queue.add(left);
+                visited.get(left.x).set(left.y, true);
             }
         }
 
@@ -198,6 +201,7 @@ public class AgenteRTAStar extends AbstractPlayer {
         if (x + 1 < so.getObservationGrid().length) {
             if (!obstacles.get(x + 1).get(y)) {
                 queue.add(right);
+                visited.get(right.x).set(right.y, true);
             }
         }
 
@@ -208,8 +212,6 @@ public class AgenteRTAStar extends AbstractPlayer {
 
         // start measuring execution time
         double tStart = System.nanoTime();
-
-        countExpandedNodes++;
 
         PriorityQueue<Vector2dInt> queue = getOrderedChildren(so, avatar_position);
 
@@ -245,6 +247,7 @@ public class AgenteRTAStar extends AbstractPlayer {
         runtime += totalTimeInSeconds;
         routeLength++;
 
+        countExpandedNodes++;
         if(avatar_position.equals(portal)) {
 
             int maxMemoryConsumption = 0;
@@ -257,7 +260,7 @@ public class AgenteRTAStar extends AbstractPlayer {
             }
 
             // log results -- runtime
-            System.out.println("RUNTIME: " + runtime);
+            System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", runtime));
 
             // log results -- route length
             System.out.println("TAMANO DE LA RUTA: " + routeLength);

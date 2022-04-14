@@ -289,7 +289,7 @@ public class AgenteIDAStar extends AbstractPlayer {
             double totalTimeInSeconds = (tEnd - tStart) / 1000000;
 
             // log results -- runtime
-            System.out.println("RUNTIME: " + totalTimeInSeconds);
+            System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
             // log results -- route length
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
