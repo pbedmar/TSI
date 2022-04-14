@@ -100,6 +100,7 @@ public class AgenteDFS extends AbstractPlayer {
         // start position in grid coordinates
         avatar_position = scale(so.getAvatarPosition());
 
+        // has the route already been computed?
         route_computed = false;
 
         // initialize parent matrix, null parent by default
@@ -239,13 +240,12 @@ public class AgenteDFS extends AbstractPlayer {
             double tStart = System.nanoTime();
             double total = 0;
 
-            // mark starting node as visited, assign null parent to it.
+            // mark start node as visited, assign null parent to it.
             visited.get(avatar_position.x).set(avatar_position.y, true);
             parent.get(avatar_position.x).set(avatar_position.y, null);
 
             // in-depth search of the solution
             DFSsearch(so, avatar_position);
-
 
             // end measuring execution time
             double tEnd = System.nanoTime();
@@ -254,13 +254,13 @@ public class AgenteDFS extends AbstractPlayer {
             // log results -- runtime
             System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
-            // log results -- route length
+            // log results -- route length (number of actions to be performed)
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
 
             // log results -- nb. of expanded nodes
             System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
-            // log results -- max nb. of nodes in memory
+            // log results -- max nb. of nodes in memory (number of visited nodes)
             int countMaxNodesInMemory = 0;
             for (int i = 0; i < so.getObservationGrid().length; i++) {
                 for (int j = 0; j < so.getObservationGrid()[0].length; j++) {

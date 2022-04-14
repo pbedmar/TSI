@@ -26,7 +26,7 @@ public class AgenteIDAStar extends AbstractPlayer {
         public Vector2dInt() {
             this.x = 0;
             this.y = 0;
-            this.c = 0;
+            this.c = 0; // count value used to order nodes in a FIFO fashion if h is the same
         }
 
         public Vector2dInt(int x, int y) {
@@ -70,10 +70,13 @@ public class AgenteIDAStar extends AbstractPlayer {
 
     }
 
+    // manhattan distance between two points in the grid (h component)
     public static int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
         return Math.abs(n1.x - n2.x) + Math.abs(n1.y - n2.y);
     }
 
+    // used to order the PriorityQueue containing the children of an expanded node. the lower the value, the higher priority.
+    // firstly ordered by h, if they are equal ordered using FIFO.
     public static class CostComparator implements Comparator<Vector2dInt> {
         @Override
         public int compare(Vector2dInt v1, Vector2dInt v2) {
@@ -94,7 +97,7 @@ public class AgenteIDAStar extends AbstractPlayer {
     public static boolean route_computed;
     public static Comparator<Vector2dInt> comparator;
     public static LinkedList<Vector2dInt> queue;
-    public static ArrayList<ArrayList<Boolean>> visited;
+    public static ArrayList<ArrayList<Boolean>> visited; // used only to compute visited nodes
 
     public static LinkedList<Types.ACTIONS> actions;
     public static int countExpandedNodes;
@@ -128,11 +131,12 @@ public class AgenteIDAStar extends AbstractPlayer {
 
         // start position in grid coordinates
         avatar_position = scale(so.getAvatarPosition());
+
         route_computed = false;
 
         comparator = new CostComparator();
-
         queue = new LinkedList<>();
+
         // initialize visited matrix, false by default
         visited = new ArrayList<>(so.getObservationGrid().length);
         for (int i = 0; i < so.getObservationGrid().length; i++) {
@@ -143,7 +147,6 @@ public class AgenteIDAStar extends AbstractPlayer {
         }
 
         actions = new LinkedList<>();
-
         countExpandedNodes = 0;
         maxMemoryConsumption = 0;
     }
@@ -160,19 +163,23 @@ public class AgenteIDAStar extends AbstractPlayer {
                 (int) position.y / fscale.y);
     }
 
+    // executed in a recursive fashion
     public int search(StateObservation so, int g, int threshold) {
-        Vector2dInt expandedNode = queue.getLast(); //TODO: getLast() or removeLast()?
+        Vector2dInt expandedNode = queue.getLast();
 
+        // used to measure the memory footprint
         if(g + 1 > maxMemoryConsumption) {
             maxMemoryConsumption = g + 1;
         }
 
+        // compute f in current node
         int f = g + manhattanDistance(expandedNode, portal);
         if (f > threshold) {
             return f;
         }
 
         countExpandedNodes++;
+        // if the expanded node is the goal
         if (expandedNode.equals(portal)) {
             return -1;
         }
@@ -182,7 +189,16 @@ public class AgenteIDAStar extends AbstractPlayer {
         int x = expandedNode.x;
         int y = expandedNode.y;
 
+        // queue used to order children using the comparator
         PriorityQueue<Vector2dInt> children = new PriorityQueue<>(comparator);
+
+
+        // generate up, down, left and right children. they are generated only if:
+        //      -> they are inside the grid
+        //      -> there are no obstacles on that position //TODO
+        // by following these rules, they are added to children queue.
+        // the c attribute is used to store the order in which the children are added to the queue,
+        // so in case of draw of the h values, we can use that order.
 
         Vector2dInt up = new Vector2dInt(x, y - 1, 0);
         if (y - 1 < so.getObservationGrid()[0].length) {
@@ -220,6 +236,7 @@ public class AgenteIDAStar extends AbstractPlayer {
             }
         }
 
+        // call search() recursively, using the children in the children queue in order
         while (!children.isEmpty()) {
             Vector2dInt child = children.remove();
             queue.addLast(child);
@@ -232,7 +249,6 @@ public class AgenteIDAStar extends AbstractPlayer {
             queue.removeLast();
             visited.get(child.x).set(child.y, false);
         }
-
 
         return min;
     }
@@ -247,17 +263,23 @@ public class AgenteIDAStar extends AbstractPlayer {
             // start measuring execution time
             double tStart = System.nanoTime();
 
+            // initialize threshold to the start position manhattan distance
             int threshold = manhattanDistance(avatar_position, portal);
             queue.addLast(avatar_position);
 
             while (true) {
                 int t = search(so, 0, threshold);
+
+                // if solution found
                 if (t == -1) {
                     System.out.println(queue);
 
                     Vector2dInt childNode;
                     Vector2dInt parentNode = queue.removeLast();
 
+                    // using the parent-child relationship, generate actions to be performed by the agent.
+                    // start from the goal node and end in the start node
+                    // store the actions in the actions list
                     while (!queue.isEmpty()) {
                         childNode = parentNode;
                         parentNode = queue.removeLast();
@@ -277,6 +299,8 @@ public class AgenteIDAStar extends AbstractPlayer {
                     route_computed = true;
                     break;
                 }
+
+                // if not found solution
                 if (t == Integer.MAX_VALUE) {
                     actions.addLast(Types.ACTIONS.ACTION_NIL);
                     break;
@@ -291,13 +315,13 @@ public class AgenteIDAStar extends AbstractPlayer {
             // log results -- runtime
             System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
-            // log results -- route length
+            // log results -- route length (number of actions to be performed)
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
 
             // log results -- nb. of expanded nodes
             System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
-            // log results -- max nb. of nodes in memory
+            // log results -- max nb. of nodes in memory (depth of the branch)
             System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
         }
 

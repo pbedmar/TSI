@@ -21,7 +21,7 @@ public class AgenteAStar extends AbstractPlayer {
         public int x;
         public int y;
         public int g;  // g component of the heuristic function
-        public int c;  // count value used to order nodes in a FIFO fashion
+        public int c;  // count value used to order nodes in a FIFO fashion if f and g are the same
 
         public Vector2dInt() {
             this.x = 0;
@@ -75,16 +75,17 @@ public class AgenteAStar extends AbstractPlayer {
 
     }
 
-    // manhattan distance between two points in the grid
+    // manhattan distance between two points in the grid (h component)
     public int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
         return Math.abs(n1.x - n2.x) + Math.abs(n1.y - n2.y);
     }
 
+    // heuristic function f
     public int f(Vector2dInt node) {
         return node.g + manhattanDistance(node, portal);
     }
 
-    // used to order the PriorityQueue. the lower the value, the bigger priority.
+    // used to order the PriorityQueue representing the open queue. the lower the value, the higher priority.
     // firstly ordered by f, if they are equal ordered by g, if they are equal ordered using FIFO.
     public class CostComparator implements Comparator<Vector2dInt> {
         @Override
@@ -93,7 +94,6 @@ public class AgenteAStar extends AbstractPlayer {
             if (result == 0) {
                 result = v1.g - v2.g;
                 if (result == 0) {
-                    //TODO: What can I do on this situation? How can I enforce the PriorityQueue to maintain insertion order? Is this way ok?
                     result = v1.c - v2.c;
                 }
             }
@@ -102,7 +102,7 @@ public class AgenteAStar extends AbstractPlayer {
     }
 
     public static Vector2dInt fscale;
-    public static int count;
+    public static int count; // count value used to order nodes in a FIFO fashion
 
     public static Vector2dInt portal;
     public static ArrayList<ArrayList<Boolean>> obstacles;
@@ -110,10 +110,10 @@ public class AgenteAStar extends AbstractPlayer {
 
     public static boolean route_computed;
     public static CostComparator comparator;
-    public static PriorityQueue<Vector2dInt> open;
-    public static ArrayList<ArrayList<Vector2dInt>> openAux; // auxiliary data structure used to access a node in the open queue in O(1), given it's coordinates
-    public static ArrayList<ArrayList<Vector2dInt>> closed;
-    public static int closedSize;
+    public static PriorityQueue<Vector2dInt> open; // open nodes
+    public static ArrayList<ArrayList<Vector2dInt>> openAux; // auxiliary data structure used to access the best node in the open queue in O(1) given its coordinates
+    public static ArrayList<ArrayList<Vector2dInt>> closed; // closed nodes
+    public static int closedSize; // used to measure the memory footprint
     public static ArrayList<ArrayList<Vector2dInt>> parent;
 
 
@@ -155,6 +155,7 @@ public class AgenteAStar extends AbstractPlayer {
         count++;
 
         route_computed = false;
+
         comparator = new CostComparator();
         open = new PriorityQueue<>(comparator);
 
@@ -211,9 +212,9 @@ public class AgenteAStar extends AbstractPlayer {
         if (child.equals(parent.get(x).get(y))) {
             ;
         } else {
-            // null if the child is not in the closed queue. if it is, get it to access g
+            // null if the child is not in the closed queue. if it is, get it to access g in next steps
             Vector2dInt closedNode = closed.get(child.x).get(child.y);
-            // null if the child is not in the open queue. if it is, get it to access g
+            // null if the child is not in the open queue. if it is, get it to access g in next steps
             Vector2dInt prevOpenNode = openAux.get(child.x).get(child.y);
 
             // if the child is already in the closed queue and its g was bigger than now,
@@ -355,13 +356,13 @@ public class AgenteAStar extends AbstractPlayer {
             // log results -- runtime
             System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
-            // log results -- route length
+            // log results -- route length (number of actions to be performed)
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
 
             // log results -- nb. of expanded nodes
             System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
-            // log results -- max nb. of nodes in memory
+            // log results -- max nb. of nodes in memory (max(|open| + |closed|))
             System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
 
         }

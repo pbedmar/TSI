@@ -243,13 +243,13 @@ public class AgenteBFS extends AbstractPlayer {
             // log results -- runtime
             System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
 
-            // log results -- route length
+            // log results -- route length (number of actions to be performed)
             System.out.println("TAMANO DE LA RUTA: " + actions.size());
 
             // log results -- nb. of expanded nodes
             System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
-            // log results -- max nb. of nodes in memory
+            // log results -- max nb. of nodes in memory (number of visited nodes)
             int countMaxNodesInMemory = 0;
             for (int i = 0; i < so.getObservationGrid().length; i++) {
                 for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
