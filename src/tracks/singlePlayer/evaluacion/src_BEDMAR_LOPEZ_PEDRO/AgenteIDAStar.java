@@ -21,12 +21,12 @@ public class AgenteIDAStar extends AbstractPlayer {
          */
         public int x;
         public int y;
-        public int c;
+        public int c; // count value used to order nodes in a FIFO fashion if h is the same
 
         public Vector2dInt() {
             this.x = 0;
             this.y = 0;
-            this.c = 0; // count value used to order nodes in a FIFO fashion if h is the same
+            this.c = 0;
         }
 
         public Vector2dInt(int x, int y) {
@@ -64,7 +64,7 @@ public class AgenteIDAStar extends AbstractPlayer {
         }
 
         public String toString() {
-            return "(" + x + ", " + y + ")";
+            return "(" + x + ", " + y + "," + c + ")";
         }
 
 
@@ -195,7 +195,8 @@ public class AgenteIDAStar extends AbstractPlayer {
 
         // generate up, down, left and right children. they are generated only if:
         //      -> they are inside the grid
-        //      -> there are no obstacles on that position //TODO
+        //      -> there are no obstacles on that position
+        //      -> the node is not in the route
         // by following these rules, they are added to children queue.
         // the c attribute is used to store the order in which the children are added to the queue,
         // so in case of draw of the h values, we can use that order.
@@ -272,7 +273,6 @@ public class AgenteIDAStar extends AbstractPlayer {
 
                 // if solution found
                 if (t == -1) {
-                    System.out.println(queue);
 
                     Vector2dInt childNode;
                     Vector2dInt parentNode = queue.removeLast();
@@ -295,7 +295,6 @@ public class AgenteIDAStar extends AbstractPlayer {
                         }
                     }
 
-                    System.out.println(actions);
                     route_computed = true;
                     break;
                 }

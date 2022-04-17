@@ -177,7 +177,7 @@ public class AgenteRTAStar extends AbstractPlayer {
 
         // generate up, down, left and right children. they are generated only if:
         //      -> they are inside the grid
-        //      -> there are no obstacles on that position //TODO
+        //      -> there are no obstacles on that position
         // by following these rules, they are added to children queue.
         // the c attribute is used to store the order in which the children are added to the queue,
         // so in case of draw of the h values, we can use that order.

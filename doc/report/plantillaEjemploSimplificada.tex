@@ -103,7 +103,7 @@ En cuanto al tiempo de ejecución ocurre al revés, ya que aunque A* necesite ex
 
 \subsection{¿Cuáles son las principales diferencias entre A* e IDA*? ¿En qué contextos es
 más conveniente usar uno u otro?}
-Aunque ambos algoritmos encuentran el camino óptimo, A* fue propuesto en primer lugar. IDA* se desarrolló con el propósito de reducir la memoria utilizada por A*, utilizando una búsqueda en profundidad acotada sobre el grafo. Es por esto que el máximo número de nodos en memoria es considerablemente menor que en A* en todos los mapas en la tabla. En cada momento sólo almacena el camino desde el nodo inicial hasta el actual, en vez de mantener una cola de abiertos y cerrados como A*.
+Aunque ambos algoritmos encuentran el camino óptimo, A* fue propuesto en primer lugar. IDA* se desarrolló con el propósito de reducir la memoria utilizada por A*, utilizando una búsqueda acotada sobre el grafo. Es por esto que el máximo número de nodos en memoria es considerablemente menor que en A* en todos los mapas en la tabla. En cada momento sólo almacena el camino desde el nodo inicial hasta el actual, en vez de mantener una cola de abiertos y cerrados como A*.
 
 Por otro lado, el número de nodos expandidos y el tiempo de ejecución aumentan. IDA* utiliza una cota para limitar la búsqueda a una determinada profundidad del grafo. Si en esa profundidad no se ha encontrado la solución, se aumenta la cota y se comienza la búsqueda desde cero, volviendo a recorrer los nodos y caminos visitados en la iteración anterior. El no mantener un control sobre qué nodos se han visitado anteriormente, como realiza A*, hace que el tiempo de ejecución aumente considerablemente, repitiendo búsquedas en caminos que ya se habían comprobado.
 
@@ -114,6 +114,6 @@ Cuando nos encontramos ante una tarea de búsqueda donde tenemos restricciones d
 
 Sobre su optimalidad, no asegura encontrar el camino óptimo. Esto se debe a que sólo es capaz de razonar en función del vecindario próximo al nodo actual. En la búsqueda se ayuda de una heurística, y va actualizando su valor conforme recorre el mapa. De hecho, puede visitar el mismo nodo en varias ocasiones, actualizando su valor heurístico. Estas múltiples visitas al mismo nodo harán que el tamaño de la ruta y el número de nodos expandidos en RTA* sean mayores que en A*. 
 
-En memoria sólo se almacenan los nodos que se han visitado, por lo que necesita almacenar menos información que A*. En definitiva, RTA* es más eficiente en memoria y tiempo (ya que distribuye los cálculos entre ticks) que A*, pero cuenta con la desventaja de no obtener el camino óptimo, con caminos que según el mapa pueden ser mucho más largos.
+En memoria sólo se almacenan los nodos que se han visitado, por lo que necesita almacenar menos información que A*. En definitiva, RTA* es más eficiente en memoria y tiempo (distribuyendo los cálculos entre ticks) que A*, pero cuenta con la desventaja de no obtener el camino óptimo, con caminos que según el mapa pueden ser mucho más largos.
 
 \end{document}
