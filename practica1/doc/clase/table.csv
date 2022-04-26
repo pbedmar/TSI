@@ -1,0 +1,21 @@
+Algoritmo;Mapa;Runtime (ms) (acumulado);Tamaño de la ruta calculada;Número de nodos expandidos;Máximo número de nodos en memoria
+BFS;Muy pequeño;0.302;15;96;97
+;Pequeño;0.455;34;130;131
+;Mediano;0.1833;110;846;846
+;Grande;0.5150;209;4632;4635
+DFS;Muy pequeño;0.21244;27;71;71
+;Pequeño;0.23764;64;81;81
+;Mediano;0.81093;238;402;402
+;Grande;1.72530;935;1213;1213
+A*;Muy pequeño;0.499266;15;40;57
+;Pequeño;1.255655;34;86;104
+;Mediano;3.734798;110;717;735
+;Grande;12.850512;209;3607;3702
+IDA*;Muy pequeño;2.02634;15;133;16
+;Pequeño;3.35277;34;427;35
+;Mediano;TO;110;484650;111
+;Grande;;;;
+RTA*;Muy pequeño;1.281311;53;53;37
+;Pequeño;1.350617;38;38;36
+;Mediano;7.300486;1594;1594;544
+;Grande;8.477513;1567;1567;513

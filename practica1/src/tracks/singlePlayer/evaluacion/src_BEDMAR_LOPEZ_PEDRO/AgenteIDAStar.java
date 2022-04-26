@@ -7,9 +7,12 @@ import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
 
-public class AgenteBFS extends AbstractPlayer {
+public class AgenteIDAStar extends AbstractPlayer {
 
     // class representing a position on the grid
     public static class Vector2dInt {
@@ -17,27 +20,37 @@ public class AgenteBFS extends AbstractPlayer {
          * X-coordinate of the vector.
          */
         public int x;
-
         public int y;
+        public int c; // count value used to order nodes in a FIFO fashion if h is the same
 
         public Vector2dInt() {
             this.x = 0;
             this.y = 0;
+            this.c = 0;
         }
 
         public Vector2dInt(int x, int y) {
             this.x = x;
             this.y = y;
+            this.c = 0;
+        }
+
+        public Vector2dInt(int x, int y, int c) {
+            this.x = x;
+            this.y = y;
+            this.c = c;
         }
 
         public Vector2dInt(Vector2dInt v) {
             this.x = v.x;
             this.y = v.y;
+            this.c = v.c;
         }
 
         public Vector2dInt(Vector2d v) {
             this.x = (int) v.x;
             this.y = (int) v.y;
+            this.c = 0;
         }
 
         @Override
@@ -51,10 +64,28 @@ public class AgenteBFS extends AbstractPlayer {
         }
 
         public String toString() {
-            return "(" + x + ", " + y + ")";
+            return "(" + x + ", " + y + "," + c + ")";
         }
 
 
+    }
+
+    // manhattan distance between two points in the grid (h component)
+    public static int manhattanDistance(Vector2dInt n1, Vector2dInt n2) {
+        return Math.abs(n1.x - n2.x) + Math.abs(n1.y - n2.y);
+    }
+
+    // used to order the PriorityQueue containing the children of an expanded node. the lower the value, the higher priority.
+    // firstly ordered by h, if they are equal ordered using FIFO.
+    public static class CostComparator implements Comparator<Vector2dInt> {
+        @Override
+        public int compare(Vector2dInt v1, Vector2dInt v2) {
+            int result = manhattanDistance(v1, portal) - manhattanDistance(v2, portal);
+            if (result == 0) {
+                result = v1.c - v2.c;
+            }
+            return result;
+        }
     }
 
     public static Vector2dInt fscale;
@@ -64,15 +95,16 @@ public class AgenteBFS extends AbstractPlayer {
     public static Vector2dInt avatar_position;
 
     public static boolean route_computed;
+    public static Comparator<Vector2dInt> comparator;
     public static LinkedList<Vector2dInt> queue;
-    public static ArrayList<ArrayList<Vector2dInt>> parent;
-    public static ArrayList<ArrayList<Boolean>> visited;
+    public static ArrayList<ArrayList<Boolean>> visited; // used to control nodes already in the route
 
     public static LinkedList<Types.ACTIONS> actions;
     public static int countExpandedNodes;
+    public static int maxMemoryConsumption;
 
 
-    public AgenteBFS(StateObservation so, ElapsedCpuTimer elapsedTimer) {
+    public AgenteIDAStar(StateObservation so, ElapsedCpuTimer elapsedTimer) {
         // scale factor to transform world to grid coordinates
         fscale = new Vector2dInt(so.getWorldDimension().width / so.getObservationGrid().length, so.getWorldDimension().height / so.getObservationGrid()[0].length);
 
@@ -101,16 +133,9 @@ public class AgenteBFS extends AbstractPlayer {
         avatar_position = scale(so.getAvatarPosition());
 
         route_computed = false;
-        queue = new LinkedList<>();
 
-        // initialize parent matrix, null parent by default
-        parent = new ArrayList<>(so.getObservationGrid().length);
-        for (int i = 0; i < so.getObservationGrid().length; i++) {
-            parent.add(new ArrayList<>(so.getObservationGrid()[0].length));
-            for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
-                parent.get(i).add(null);
-            }
-        }
+        comparator = new CostComparator();
+        queue = new LinkedList<>();
 
         // initialize visited matrix, false by default
         visited = new ArrayList<>(so.getObservationGrid().length);
@@ -123,6 +148,7 @@ public class AgenteBFS extends AbstractPlayer {
 
         actions = new LinkedList<>();
         countExpandedNodes = 0;
+        maxMemoryConsumption = 0;
     }
 
     // world coordinates to grid coordinates
@@ -137,50 +163,97 @@ public class AgenteBFS extends AbstractPlayer {
                 (int) position.y / fscale.y);
     }
 
-    // generate up, down, left and right children. they are generated only if:
-    //      -> they are inside the grid
-    //      -> they haven't been visited before
-    //      -> there are no obstacles on that position
-    // by following these rules, they are marked as visited, get a parent assigned and are added to the queue
-    public void generateChildren(StateObservation so, Vector2dInt expandedNode) {
+    // executed in a recursive fashion
+    public int search(StateObservation so, int g, int threshold) {
+        Vector2dInt expandedNode = queue.getLast();
+
+        // used to measure the memory footprint
+        if(g + 1 > maxMemoryConsumption) {
+            maxMemoryConsumption = g + 1;
+        }
+
+        // compute f in current node
+        int f = g + manhattanDistance(expandedNode, portal);
+        if (f > threshold) {
+            return f;
+        }
+
+        countExpandedNodes++;
+        // if the expanded node is the goal
+        if (expandedNode.equals(portal)) {
+            return -1;
+        }
+
+        int min = Integer.MAX_VALUE;
+
         int x = expandedNode.x;
         int y = expandedNode.y;
 
-        Vector2dInt up = new Vector2dInt(x, y - 1);
-        if (y - 1 >= 0 && !visited.get(up.x).get(up.y)) {
+        // queue used to order children using the comparator
+        PriorityQueue<Vector2dInt> children = new PriorityQueue<>(comparator);
+
+
+        // generate up, down, left and right children. they are generated only if:
+        //      -> they are inside the grid
+        //      -> there are no obstacles on that position
+        //      -> the node is not in the route (I use visited matrix for that)
+        // by following these rules, they are added to children queue.
+        // the c attribute is used to store the order in which the children are added to the queue,
+        // so in case of draw of the h values, we can use that order.
+
+        Vector2dInt up = new Vector2dInt(x, y - 1, 0);
+        if (y - 1 >= 0) {
             if (!obstacles.get(x).get(y - 1)) {
-                visited.get(up.x).set(up.y, true);
-                parent.get(up.x).set(up.y, expandedNode);
-                queue.addLast(up);
+                if (!visited.get(x).get(y - 1)) {
+                    children.add(up);
+                }
             }
         }
 
-        Vector2dInt down = new Vector2dInt(x, y + 1);
-        if (y + 1 < so.getObservationGrid()[0].length && !visited.get(down.x).get(down.y)) {
+        Vector2dInt down = new Vector2dInt(x, y + 1, 1);
+        if (y + 1 < so.getObservationGrid()[0].length) {
             if (!obstacles.get(x).get(y + 1)) {
-                visited.get(down.x).set(down.y, true);
-                parent.get(down.x).set(down.y, expandedNode);
-                queue.addLast(down);
+                if (!visited.get(x).get(y + 1)) {
+                    children.add(down);
+                }
             }
         }
 
-        Vector2dInt left = new Vector2dInt(x - 1, y);
-        if (x - 1 >= 0 && !visited.get(left.x).get(left.y)) {
+        Vector2dInt left = new Vector2dInt(x - 1, y, 2);
+        if (x - 1 >= 0) {
             if (!obstacles.get(x - 1).get(y)) {
-                visited.get(left.x).set(left.y, true);
-                parent.get(left.x).set(left.y, expandedNode);
-                queue.addLast(left);
+                if (!visited.get(x - 1).get(y)) {
+                    children.add(left);
+                }
             }
         }
 
-        Vector2dInt right = new Vector2dInt(x + 1, y);
-        if (x + 1 < so.getObservationGrid().length && !visited.get(right.x).get(right.y)) {
+        Vector2dInt right = new Vector2dInt(x + 1, y, 3);
+        if (x + 1 < so.getObservationGrid().length) {
             if (!obstacles.get(x + 1).get(y)) {
-                visited.get(right.x).set(right.y, true);
-                parent.get(right.x).set(right.y, expandedNode);
-                queue.addLast(right);
+                if (!visited.get(x + 1).get(y)) {
+                    children.add(right);
+                }
             }
         }
+
+        // call search() recursively, using the child with lower cost first
+        while (!children.isEmpty()) {
+            Vector2dInt child = children.remove();
+            queue.addLast(child);
+            visited.get(child.x).set(child.y, true); // child is in the route
+            int t = search(so, g + 1, threshold);
+            if (t == -1) {
+                return -1;
+            }
+            if (t < min) {
+                min = t;
+            }
+            queue.removeLast();
+            visited.get(child.x).set(child.y, false);
+        }
+
+        return min;
     }
 
     // executed at each step
@@ -193,52 +266,52 @@ public class AgenteBFS extends AbstractPlayer {
             // start measuring execution time
             double tStart = System.nanoTime();
 
-            // add start node to the queue
-            visited.get(avatar_position.x).set(avatar_position.y, true);
-            parent.get(avatar_position.x).set(avatar_position.y, null);
+            // initialize threshold to the start position manhattan distance
+            int threshold = manhattanDistance(avatar_position, portal);
             queue.addLast(avatar_position);
 
-            // while there are nodes to visit and solution not found
-            while (!queue.isEmpty() && !route_computed) {
-                Vector2dInt expanded_node = queue.removeFirst();
+            while (true) {
+                int t = search(so, 0, threshold);
 
-                // if the expanded node is the goal
-                countExpandedNodes++;
-                if (expanded_node.equals(portal)) {
-                    Vector2dInt child_node = expanded_node;
-                    Vector2dInt parent_node = parent.get(expanded_node.x).get(expanded_node.y);
+                // if solution found
+                if (t == -1) {
+
+                    Vector2dInt childNode;
+                    Vector2dInt parentNode = queue.removeLast();
 
                     // using the parent-child relationship, generate actions to be performed by the agent.
                     // start from the goal node and end in the start node
                     // store the actions in the actions list
-                    while (parent_node != null) {
-                        if (parent_node.y - child_node.y < 0) {
+                    while (!queue.isEmpty()) {
+                        childNode = parentNode;
+                        parentNode = queue.removeLast();
+
+                        if (parentNode.y - childNode.y < 0) {
                             actions.addLast(Types.ACTIONS.ACTION_DOWN);
-                        } else if (parent_node.y - child_node.y > 0) {
+                        } else if (parentNode.y - childNode.y > 0) {
                             actions.addLast(Types.ACTIONS.ACTION_UP);
-                        } else if (parent_node.x - child_node.x < 0) {
+                        } else if (parentNode.x - childNode.x < 0) {
                             actions.addLast(Types.ACTIONS.ACTION_RIGHT);
-                        } else if (parent_node.x - child_node.x > 0) {
+                        } else if (parentNode.x - childNode.x > 0) {
                             actions.addLast(Types.ACTIONS.ACTION_LEFT);
                         }
-
-                        child_node = parent_node;
-                        parent_node = parent.get(parent_node.x).get(parent_node.y);
                     }
 
                     route_computed = true;
-
-                    // if the expanded node is not the goal
-                } else {
-
-                    generateChildren(so, expanded_node);
+                    break;
                 }
+
+                // if not found solution
+                if (t == Integer.MAX_VALUE) {
+                    actions.addLast(Types.ACTIONS.ACTION_NIL);
+                    break;
+                }
+                threshold = t;
             }
 
             // end measuring execution time
             double tEnd = System.nanoTime();
             double totalTimeInSeconds = (tEnd - tStart) / 1000000;
-
 
             // log results -- runtime
             System.out.println("RUNTIME: " + String.format(java.util.Locale.US,"%.5f", totalTimeInSeconds));
@@ -249,16 +322,8 @@ public class AgenteBFS extends AbstractPlayer {
             // log results -- nb. of expanded nodes
             System.out.println("NODOS EXPANDIDOS: " + countExpandedNodes);
 
-            // log results -- max nb. of nodes in memory (number of visited nodes)
-            int countMaxNodesInMemory = 0;
-            for (int i = 0; i < so.getObservationGrid().length; i++) {
-                for (int j = 0; j < so.getObservationGrid()[0].length; j++) {
-                    if (visited.get(i).get(j)) {
-                        countMaxNodesInMemory ++;
-                    }
-                }
-            }
-            System.out.println("MAX NODOS EN MEMORIA: " + countMaxNodesInMemory);
+            // log results -- max nb. of nodes in memory (depth of the branch)
+            System.out.println("MAX NODOS EN MEMORIA: " + maxMemoryConsumption);
         }
 
         // get next action to be performed by the agent

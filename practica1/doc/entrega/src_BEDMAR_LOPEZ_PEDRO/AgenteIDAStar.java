@@ -97,7 +97,7 @@ public class AgenteIDAStar extends AbstractPlayer {
     public static boolean route_computed;
     public static Comparator<Vector2dInt> comparator;
     public static LinkedList<Vector2dInt> queue;
-    public static ArrayList<ArrayList<Boolean>> visited; // used only to compute visited nodes
+    public static ArrayList<ArrayList<Boolean>> visited; // used to control nodes already in the route
 
     public static LinkedList<Types.ACTIONS> actions;
     public static int countExpandedNodes;
@@ -196,13 +196,13 @@ public class AgenteIDAStar extends AbstractPlayer {
         // generate up, down, left and right children. they are generated only if:
         //      -> they are inside the grid
         //      -> there are no obstacles on that position
-        //      -> the node is not in the route
+        //      -> the node is not in the route (I use visited matrix for that)
         // by following these rules, they are added to children queue.
         // the c attribute is used to store the order in which the children are added to the queue,
         // so in case of draw of the h values, we can use that order.
 
         Vector2dInt up = new Vector2dInt(x, y - 1, 0);
-        if (y - 1 < so.getObservationGrid()[0].length) {
+        if (y - 1 >= 0) {
             if (!obstacles.get(x).get(y - 1)) {
                 if (!visited.get(x).get(y - 1)) {
                     children.add(up);
@@ -211,7 +211,7 @@ public class AgenteIDAStar extends AbstractPlayer {
         }
 
         Vector2dInt down = new Vector2dInt(x, y + 1, 1);
-        if (y + 1 >= 0) {
+        if (y + 1 < so.getObservationGrid()[0].length) {
             if (!obstacles.get(x).get(y + 1)) {
                 if (!visited.get(x).get(y + 1)) {
                     children.add(down);
@@ -237,13 +237,15 @@ public class AgenteIDAStar extends AbstractPlayer {
             }
         }
 
-        // call search() recursively, using the children in the children queue in order
+        // call search() recursively, using the child with lower cost first
         while (!children.isEmpty()) {
             Vector2dInt child = children.remove();
             queue.addLast(child);
-            visited.get(child.x).set(child.y, true);
+            visited.get(child.x).set(child.y, true); // child is in the route
             int t = search(so, g + 1, threshold);
-            if (t == -1) return -1;
+            if (t == -1) {
+                return -1;
+            }
             if (t < min) {
                 min = t;
             }

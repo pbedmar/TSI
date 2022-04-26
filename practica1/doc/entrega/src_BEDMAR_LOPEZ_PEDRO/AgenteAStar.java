@@ -301,7 +301,7 @@ public class AgenteAStar extends AbstractPlayer {
                 // by following these rules, they are passed to the processChild() function.
                 // the c attribute is used to store the order in which the children are added to the queue,
                 // so in case of draw of the f and g values, we can use that order.
-                if (y - 1 < so.getObservationGrid()[0].length) {
+                if (y - 1 >= 0) {
                     if (!obstacles.get(x).get(y - 1)) {
                         Vector2dInt up = new Vector2dInt(x, y - 1, g + 1);
                         up.c = count;
@@ -310,7 +310,7 @@ public class AgenteAStar extends AbstractPlayer {
                     }
                 }
 
-                if (y + 1 >= 0) {
+                if (y + 1 < so.getObservationGrid()[0].length) {
                     if (!obstacles.get(x).get(y + 1)) {
                         Vector2dInt down = new Vector2dInt(x, y + 1, g + 1);
                         down.c = count;
