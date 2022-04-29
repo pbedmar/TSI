@@ -15,7 +15,7 @@ array [workers, tasks] of var int: duration = [|
 
 var int: end;
 var int: c = 0;
-array [workers] of set of int: counts = [0,0,0];
+array [workers, tasks] of int: counts = [0,0,0];
 
 int: A = 1;
 int: B = 2;
@@ -35,10 +35,8 @@ constraint forall(task in tasks)(start[task] > 0);
 % delimit house building time
 constraint forall(task in tasks)(
     exists(worker in workers)(
-        if c >= counts[worker] then
-            start[task] + sum(t in 1..task-1)(duration[worker,t]) < end /\ 
-            forall(req in tasks)(forall(t in reqs[req])(start[req] >= start[t]+duration[worker,t]))
-        endif
+        start[task] + sum(t in 1..task-1)(duration[worker,t]) < end /\ 
+        forall(req in tasks)(forall(t in reqs[req])(start[req] >= start[t]+duration[worker,t]))
     )
 );
 
