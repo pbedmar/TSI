@@ -9,7 +9,7 @@ int: catalan=2;
 int: gallego=3;
 int: navarro=4;
 int: andaluz=5;
-array [variants] of string: strRegions = ["vasco","catalan","gallego","navarro","andaluz"];
+array [variants] of string: strRegions = ["vasco","catalán","gallego","navarro","andaluz"];
 
 array [variants] of var variants: jobs;
 int: painter=1;
@@ -64,6 +64,24 @@ constraint alldifferent(animals);
 constraint alldifferent(drinks);
 constraint alldifferent(colors);
 
+var int: colorHouseZebra = sum([i | i in variants where colors[i]==animals[zebra]]);
+var int: personDrinkingWater =  sum([i | i in variants where regions[i]==drinks[water]]);
+
 solve satisfy;
 
-output ["La cebra está en la casa \(strColors[animals[zebra]]). El \(regions[drinks[water]]) bebe agua."]
+% output ["La cebra está en la casa " ++ if colorHouseZebra == 1 then "roja"  
+%                                     elseif colorHouseZebra == 2 then "verde" 
+%                                     elseif colorHouseZebra == 3 then "blanca" 
+%                                     elseif colorHouseZebra == 4 then "amarilla" 
+%                                     elseif colorHouseZebra == 5 then "azul" 
+%                                     else "" endif
+
+%         ++ ". El "                  ++ if personDrinkingWater == 1 then "vasco" 
+%                                     elseif personDrinkingWater == 2 then "catalán"
+%                                     elseif personDrinkingWater == 3 then "gallego" 
+%                                     elseif personDrinkingWater == 4 then "navarro" 
+%                                     elseif personDrinkingWater == 5 then "andaluz"
+%                                     else "" endif
+%         ++ " bebe agua."]
+
+output ["La cebra está en la casa \(colorHouseZebra). El \(personDrinkingWater) bebe agua."]
