@@ -75,6 +75,26 @@ Importe &
 \end{table}
 
 \subsection{Apartado b)}
+En este caso, añadimos restricciones extra que impiden que con monedas de céntimo podamos representar un euro o más. Debido a esto el espacio de búsqueda se va a reducir y el tiempo de ejecución por tanto también disminuye. 
+
+\begin{table}[]
+\centering
+\begin{tabular}{@{}c|lll@{}}
+\toprule
+Importe &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Número total\\ de soluciones\end{tabular}} &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
+0.17€ & {[}17,0,0,0,0,0,0,0{]} -\textgreater 17 monedas  & 28    & 0.342 \\
+1.43€ & {[}43,0,0,0,0,0,1,0{]} -\textgreater 143 monedas & 284   & 0.311 \\
+2.35€ & {[}35,0,0,0,0,0,2,0{]} -\textgreater 235 monedas & 324   & 0.412 \\
+4.99€ & {[}99,0,0,0,0,0,4,0{]} -\textgreater 499 monedas & 13098 & 2.200 \\ \bottomrule
+\end{tabular}
+\caption{Resultados del apartado b) del problema de las monedas}
+\label{tab:my-table}
+\end{table}
+
+\subsection{Apartado c)}
 
 
 \section{Problema de los horarios}
