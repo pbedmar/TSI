@@ -1,0 +1,92 @@
+\documentclass[12pt]{article} % A4 paper
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage[utf8]{inputenc}
+
+\usepackage[spanish, es-tabla]{babel} % Selecciona el español para palabras introducidas automáticamente, p.ej. "septiembre" en la fecha y especifica que se use la palabra Tabla en vez de Cuadro
+\usepackage{graphics,graphicx, float} %para incluir imágenes y colocarlas
+\usepackage{booktabs}
+
+\parskip=3pt
+
+\usepackage[
+    a4paper,
+    left=2.8cm,
+    right=2.7cm,
+    top=2.5cm,
+    bottom=2.5cm
+]{geometry}
+
+\par
+
+%----------------------------------------------------------------------------------------
+%	TÍTULO Y DATOS DEL ALUMNO
+%----------------------------------------------------------------------------------------
+
+\title{	
+
+\vspace{-2.5cm}
+\LARGE \textbf{Técnicas de los Sistemas Inteligentes} \\
+\LARGE Práctica 2: Satisfacción de restricciones con MiniZinc \\[0.5em]
+\large Curso 2021-2022 \par
+\large Pedro Bedmar López - 75935296Z \\
+\normalsize pedrobedmar@correo.ugr.es \par
+\large Grado en Ingeniería Informática
+\vspace{-7pt}
+\rule{\textwidth}{0.4pt}
+\vspace{-2cm}
+}
+
+\date{}
+
+%----------------------------------------------------------------------------------------
+% DOCUMENTO
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\clearpage
+\maketitle % Muestra el Título
+
+\section{Problema de las monedas}
+En este ejercicio se pretende resolver el problema de que dada una cantidad de dinero, se devuelve en monedas de 1, 2, 5, 10, 20 y 50 céntimos y en monedas de 1 y 2 euros.
+
+\subsection{Apartado a)}
+En este apartado calculamos cualquier solución válida, o sea, cualquier combinación de esas monedas que sume exactamente el importe introducido. Al no existir ninguna restricción aparte del uso de esas monedas específicas, el número de soluciones es muy alto y crece exponencialmente (como también lo hace el tiempo de ejecución).
+% TODO: Crece exponencialmente el número de soluciones y el tiempo?
+
+En la siguiente tabla se muestran los resultados de ejecución en 4 situaciones. La solución encontrada se expresa como un vector [c1,c2,c5,c10,c20,c50,e1,e2], donde cx representa la cantidad de monedas de x céntimos y ex la cantidad de monedas de x euros.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}c|lll@{}}
+\toprule
+Importe &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Número total\\ de soluciones\end{tabular}} &
+    \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
+0.17€ & {[}17,0,0,0,0,0,0,0{]} $-> 17$ monedas   & 28     & 0.286  \\
+1.43€ & {[}143,0,0,0,0,0,0,0{]} $-> 143$ monedas & 17952  & 2.692  \\
+2.35€ & {[}235,0,0,0,0,0,0,0{]} $-> 235$ monedas & 150824 & 25.764 \\
+4.99€ & {[}499,0,0,0,0,0,0,0{]} $-> 499$ monedas & 6224452  & 2002 \\ \bottomrule
+\end{tabular}
+\caption{Resultados del apartado a) del problema de las monedas.}
+\label{tab:my-table}
+\end{table}
+
+\subsection{Apartado b)}
+
+
+\section{Problema de los horarios}
+
+
+\section{Problema lógico}
+
+
+\section{Problema de la asignación de tareas}
+
+
+\section{Problema del coloreado de grafos}
+
+
+\end{document}
