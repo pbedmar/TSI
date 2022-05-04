@@ -77,7 +77,7 @@ Importe &
 \subsection{Apartado b)}
 En este caso, añadimos restricciones extra que impiden que con monedas de céntimo podamos representar un euro o más. Debido a esto el espacio de búsqueda se va a reducir y el tiempo de ejecución por tanto también disminuye. 
 
-\begin{table}[]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}c|lll@{}}
 \toprule
@@ -95,6 +95,32 @@ Importe &
 \end{table}
 
 \subsection{Apartado c)}
+En este caso observamos que los tiempos de ejecución son menores o iguales que en el caso anterior.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{}c|ll@{}}
+    \toprule
+    Importe &
+      \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
+      \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
+    0.17€ & {[}0,1,1,1,0,0,0,0{]} -\textgreater 3 monedas & 0.283 \\
+    1.43€ & {[}1,1,0,0,2,0,1,0{]} -\textgreater 5 monedas & 0.327 \\
+    2.35€ & {[}0,0,1,1,1,0,0,1{]} -\textgreater 4 monedas & 0.338 \\
+    4.99€ & {[}0,2,1,0,2,1,0,2{]} -\textgreater 8 monedas & 0.376 \\ \bottomrule
+    \end{tabular}
+    \caption{Resultados del apartado c) del problema de las monedas}
+    \label{tab:my-table}
+    \end{table}
+
+\subsection{Apartado d)}
+\subsubsection*{¿Qué ocurriría si, usando la codificación (a) para encontrar todas las soluciones, el importe buscado es mucho mayor?} 
+Ocurre que el espacio de búsqueda crece exponencialmente, y de la misma forma lo hace el tiempo de ejecución, por lo tanto llega un punto en el que el problema es inabarcable. 
+
+\subsubsection*{¿Se podría encontrar alguna solución (usando la codificación de (a) o cualquier otra) de este problema con un importe del orden de los millones de euros?}
+Sí, una codificación donde únicamente existan monedas de un céntimo sería más eficiente y podría resolver el problema con tiempos de ejecución menores.
 
 
 \section{Problema de los horarios}
