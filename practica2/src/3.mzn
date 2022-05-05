@@ -1,8 +1,10 @@
 include "globals.mzn";
 
+% for each variable there are five possible options
 int: n_variants=5;
 set of int: variants=1..n_variants;
 
+% encode each person origin region
 array [variants] of var variants: regions;
 int: vasco=1;
 int: catalan=2;
@@ -11,6 +13,7 @@ int: navarro=4;
 int: andaluz=5;
 array [variants] of string: strRegions = ["vasco","catalán","gallego","navarro","andaluz"];
 
+% encode each person job
 array [variants] of var variants: jobs;
 int: painter=1;
 int: sculptor=2;
@@ -19,6 +22,7 @@ int: violinist=4;
 int: doctor=5; 
 array [variants] of string: strJobs = ["pintor","escultor","diplomático","violinista","médico"];
 
+% encode each person animal
 array [variants] of var variants: animals;
 int: dog=1;
 int: snail=2;
@@ -27,6 +31,7 @@ int: horse=4;
 int: zebra=5; 
 array [variants] of string: strAnimals = ["perro","caracoles","zorro","caballo","cebra"];
 
+% encode each person drink
 array [variants] of var variants: drinks;
 int: tea=1;
 int: coffee=2;
@@ -35,6 +40,7 @@ int: juice=4;
 int: water=5; 
 array [variants] of string: strDrinks = ["te","café","leche","zumo","agua"];
 
+% encode each house color
 array [variants] of var variants: colors;
 int: red=1;
 int: green=2;
@@ -43,6 +49,10 @@ int: yellow=4;
 int: blue=5; 
 array [variants] of string: strColors = ["roja", "verde", "blanca", "amarilla", "azul"];
 
+% there is still a missing variable that we haven't initialized: the house position in the street.
+% we don't explicitly do that because is encoded in the representation. each array position on then
+% rest of variables tell us this house position. for example, regions[vasco] will tell us in what house
+% lives the vasco. we use that relation to codify the constraints.
 constraint regions[vasco] == colors[red];
 constraint regions[catalan] == animals[dog];
 constraint regions[gallego] == jobs[painter];
@@ -58,6 +68,7 @@ constraint jobs[violinist] == drinks[juice];
 constraint animals[fox] == jobs[doctor]+1 \/ animals[fox] == jobs[doctor]-1;
 constraint animals[horse] == jobs[diplomat]+1 \/ animals[horse] == jobs[diplomat]-1;
 
+% each option for each variable should be different
 constraint alldifferent(regions);
 constraint alldifferent(jobs);
 constraint alldifferent(animals);
@@ -68,20 +79,5 @@ var int: colorHouseZebra = sum([i | i in variants where colors[i]==animals[zebra
 var int: personDrinkingWater =  sum([i | i in variants where regions[i]==drinks[water]]);
 
 solve satisfy;
-
-% output ["La cebra está en la casa " ++ if colorHouseZebra == 1 then "roja"  
-%                                     elseif colorHouseZebra == 2 then "verde" 
-%                                     elseif colorHouseZebra == 3 then "blanca" 
-%                                     elseif colorHouseZebra == 4 then "amarilla" 
-%                                     elseif colorHouseZebra == 5 then "azul" 
-%                                     else "" endif
-
-%         ++ ". El "                  ++ if personDrinkingWater == 1 then "vasco" 
-%                                     elseif personDrinkingWater == 2 then "catalán"
-%                                     elseif personDrinkingWater == 3 then "gallego" 
-%                                     elseif personDrinkingWater == 4 then "navarro" 
-%                                     elseif personDrinkingWater == 5 then "andaluz"
-%                                     else "" endif
-%         ++ " bebe agua."]
 
 output ["La cebra está en la casa \(colorHouseZebra). El \(personDrinkingWater) bebe agua."]

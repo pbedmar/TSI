@@ -1,8 +1,8 @@
 include "globals.mzn";
 
-int: NUM_NODOS = 6 ;
-int: NUM_ARISTAS = 15 ;
-array[1..NUM_ARISTAS,1..2] of int: aristas = [|5 , 6 |1 , 4 |4 , 2 |4 , 6 |3 , 5 |1 , 5 |3 , 2 |1 , 2 |6 , 2 |6 , 1 |2 , 5 |4 , 1 |4 , 6 |1 , 3 |4 , 1 |];
+int: NUM_NODOS = 4 ;
+int: NUM_ARISTAS = 6 ;
+array[1..NUM_ARISTAS,1..2] of int: aristas = [|1 , 4 |2 , 1 |3 , 4 |3 , 4 |1 , 4 |3 , 2 |];
 
 set of int: n_aristas = 1..NUM_ARISTAS;
 

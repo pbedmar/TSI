@@ -6,6 +6,7 @@
 \usepackage[spanish, es-tabla]{babel} % Selecciona el español para palabras introducidas automáticamente, p.ej. "septiembre" en la fecha y especifica que se use la palabra Tabla en vez de Cuadro
 \usepackage{graphics,graphicx, float} %para incluir imágenes y colocarlas
 \usepackage{booktabs}
+\usepackage{xcolor}
 
 \parskip=3pt
 
@@ -65,10 +66,10 @@ Importe &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Número total\\ de soluciones\end{tabular}} &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
-0.17€ & {[}17,0,0,0,0,0,0,0{]} $-> 17$ monedas   & 28     & 0.286  \\
-1.43€ & {[}143,0,0,0,0,0,0,0{]} $-> 143$ monedas & 17952  & 2.692  \\
-2.35€ & {[}235,0,0,0,0,0,0,0{]} $-> 235$ monedas & 150824 & 25.764 \\
-4.99€ & {[}499,0,0,0,0,0,0,0{]} $-> 499$ monedas & 6224452  & 2002 \\ \bottomrule
+0.17€ & {[}17,0,0,0,0,0,0,0{]} $\rightarrow$ 17 monedas   & 28     & 0.286  \\
+1.43€ & {[}143,0,0,0,0,0,0,0{]} $\rightarrow$ 143 monedas & 17952  & 2.692  \\
+2.35€ & {[}235,0,0,0,0,0,0,0{]} $\rightarrow$ 235 monedas & 150824 & 25.764 \\
+4.99€ & {[}499,0,0,0,0,0,0,0{]} $\rightarrow$ 499 monedas & 6224452  & 2002 \\ \bottomrule
 \end{tabular}
 \caption{Resultados del apartado a) del problema de las monedas.}
 \label{tab:my-table}
@@ -85,17 +86,18 @@ Importe &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Número total\\ de soluciones\end{tabular}} &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
-0.17€ & {[}17,0,0,0,0,0,0,0{]} -\textgreater 17 monedas  & 28    & 0.342 \\
-1.43€ & {[}43,0,0,0,0,0,1,0{]} -\textgreater 143 monedas & 284   & 0.311 \\
-2.35€ & {[}35,0,0,0,0,0,2,0{]} -\textgreater 235 monedas & 324   & 0.412 \\
-4.99€ & {[}99,0,0,0,0,0,4,0{]} -\textgreater 499 monedas & 13098 & 2.200 \\ \bottomrule
+0.17€ & {[}17,0,0,0,0,0,0,0{]} $\rightarrow$ 17 monedas  & 28    & 0.342 \\
+1.43€ & {[}43,0,0,0,0,0,1,0{]} $\rightarrow$ 143 monedas & 284   & 0.311 \\
+2.35€ & {[}35,0,0,0,0,0,2,0{]} $\rightarrow$ 235 monedas & 324   & 0.412 \\
+4.99€ & {[}99,0,0,0,0,0,4,0{]} $\rightarrow$ 499 monedas & 13098 & 2.200 \\ \bottomrule
 \end{tabular}
 \caption{Resultados del apartado b) del problema de las monedas}
 \label{tab:my-table}
 \end{table}
 
 \subsection{Apartado c)}
-En este caso observamos que los tiempos de ejecución son menores o iguales que en el caso anterior.
+En este caso observamos que los tiempos de ejecución son menores o iguales que en el caso anterior. Esto se debe a que para problemas de optimización, MiniZinc no recorre todo el espacio de búsqueda, sino aquellas áreas donde es más probable encontrar la solución primero.
+% TODO: es correcto?
 
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
@@ -106,10 +108,10 @@ En este caso observamos que los tiempos de ejecución son menores o iguales que 
     Importe &
       \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Primera solución encontrada\\ y número de monedas de la misma\end{tabular}} &
       \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
-    0.17€ & {[}0,1,1,1,0,0,0,0{]} -\textgreater 3 monedas & 0.283 \\
-    1.43€ & {[}1,1,0,0,2,0,1,0{]} -\textgreater 5 monedas & 0.327 \\
-    2.35€ & {[}0,0,1,1,1,0,0,1{]} -\textgreater 4 monedas & 0.338 \\
-    4.99€ & {[}0,2,1,0,2,1,0,2{]} -\textgreater 8 monedas & 0.376 \\ \bottomrule
+    0.17\texteuro  & {[}0,1,1,1,0,0,0,0{]} $\rightarrow$ 3 monedas & 0.283 \\
+    1.43\texteuro  & {[}1,1,0,0,2,0,1,0{]} $\rightarrow$ 5 monedas & 0.327 \\
+    2.35\texteuro  & {[}0,0,1,1,1,0,0,1{]} $\rightarrow$ 4 monedas & 0.338 \\
+    4.99\texteuro  & {[}0,2,1,0,2,1,0,2{]} $\rightarrow$ 8 monedas & 0.376 \\ \bottomrule
     \end{tabular}
     \caption{Resultados del apartado c) del problema de las monedas}
     \label{tab:my-table}
@@ -119,20 +121,85 @@ En este caso observamos que los tiempos de ejecución son menores o iguales que 
 \subsubsection*{¿Qué ocurriría si, usando la codificación (a) para encontrar todas las soluciones, el importe buscado es mucho mayor?} 
 Ocurre que el espacio de búsqueda crece exponencialmente, y de la misma forma lo hace el tiempo de ejecución, por lo tanto llega un punto en el que el problema es inabarcable. 
 
-\subsubsection*{¿Se podría encontrar alguna solución (usando la codificación de (a) o cualquier otra) de este problema con un importe del orden de los millones de euros?}
-Sí, una codificación donde únicamente existan monedas de un céntimo sería más eficiente y podría resolver el problema con tiempos de ejecución menores.
+\subsubsection*{¿Se podría encontrar alguna solución (usando la codificación de (a) o cualquier otra) de este problema con un importe del orden de los millones de euros? En caso afirmativo, ¿cuál podría ser una estrategia prometedora?}
+Sí, una codificación donde únicamente existan monedas de un céntimo sería más eficiente y podría resolver el problema con tiempos de ejecución menores. Su coste computacional sería O(n).
 
+Otra estrategia prometedora podría utilizar monedas de dos euros, dividiendo la cantidad millonaria entre esta cifra de forma iterativa, hasta llegar a un punto donde no pudiéramos dividir más por ser el cociente de la división menor a 1. En ese punto, completaríamos con el resto de monedas disponibles. De esta forma, la complejidad de tratar la cantidad millonaria se reduce en gran medida.
+%TODO: Está correcto lo que acabo de explicar?
 
 \section{Problema de los horarios}
+Como se puede observar en las tablas inferiores, existen dos soluciones para este problema. La única diferencia entre ellas es el intercambio de las asignaturas en color rojo.
 
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccc}
+\multicolumn{1}{l|}{} & L  & M  & X  & J  & V  \\ \hline
+8-9                   & A4 & A4 & A8 & A5 & A5 \\
+9-10                  & A4 & A4 & A8 & A5 & A5 \\
+10-11                 & A9 & A7 & A6 & A2 & A6 \\
+11-12                 & NA & NA & NA & NA & NA \\
+12-13                 & A1 & A1 & A3 & A3 & \color{red}A2 \\
+13-14                 & A1 & A1 & A3 & A3 & \color{red}A7
+\end{tabular}
+\caption{Solución 1 al problema de los horarios}
+\label{tab:my-table}
+\end{table}
+\vspace{2pt}
+\begin{table}[H]
+\centering
+\begin{tabular}{c|ccccc}
+\multicolumn{1}{l|}{} & L  & M  & X  & J  & V  \\ \hline
+8-9                   & A4 & A4 & A8 & A5 & A5 \\
+9-10                  & A4 & A4 & A8 & A5 & A5 \\
+10-11                 & A9 & A7 & A6 & A2 & A6 \\
+11-12                 & NA & NA & NA & NA & NA \\
+12-13                 & A1 & A1 & A3 & A3 & \color{red}A7 \\
+13-14                 & A1 & A1 & A3 & A3 & \color{red}A2
+\end{tabular}
+\caption{Solución 2 al problema de los horarios}
+\label{tab:my-table}
+\end{table}
+
+En mi caso, por cómo he representado el problema y por las restricciones que he empleado, no he obtenido soluciones simétricas. Un caso donde se me ocurre que podrían aparecer es utilizando identificadores distintos para cada recreo. En mi caso, los recreos siempre los fuerzo a tomar valor 0, pero si pudieran tomar valores diferentes para cada día (-1, -2, -3, -4 y -5, por ejemplo) aquí encontraríamos simetrías, soluciones que semánticamente significan lo mismo, pero que poseen valores diferentes. El recreo del lunes podría tomar valor -1 y el del martes -2, pero también podría ocurrir al revés, siendo las soluciones semánticamente idénticas.
+
+Otra simetría aparecería si nuestra codificación diferenciara cada uno de los bloques lectivos de una misma asignatura. En ese caso, por ejemplo, las dos primeras horas del lunes y del martes se podrían intercambiar, dando lugar a dos soluciones semánticamente idénticas.
+
+Como podemos observar, la estrategia para evitar simetrías consiste en hacer coincidir el dominio de las variables con su dominio semántico, de forma que la cardinalidad de ambos sea la misma.
+% TODO: está esto bien?
 
 \section{Problema lógico}
-
+En este ejercicio solo existe una solución posible: el andaluz bebe agua y la cebra está en la casa verde.
+% TODO: qué más poner en este ejercicio?
 
 \section{Problema de la asignación de tareas}
+Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo, el tiempo mínimo requerido para completar la construcción es de 12 días.
 
+\begin{figure}[H] %con el [H] le obligamos a situar aquí la figura
+    \centering
+        \includegraphics[scale=0.32]{gantt.png}
+        \caption{Diagrama de Gantt de la solución sin el cuarto trabajador}
+\end{figure}
 
 \section{Problema del coloreado de grafos}
+Al igual que ocurre en el problema 1a), este también crece de forma exponencial y se hace inabarcable. Se puede comprobar observando los tiempos de ejecución en la tabla inferior.
+% TODO: el profesor espera aquí que hablemos de propagación unitaria?
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c|cc}
+\multicolumn{1}{l|}{Tamaño del grafo} &
+    \begin{tabular}[c]{@{}c@{}}Número de\\ colores mínimo\end{tabular} &
+    \begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular} \\ \hline
+N=4, M=6   & 3 3 2    & 0.595 0.598 0.328 \\
+N=6, M=15  & 5 5 4    & 0.522 0.533 0.606 \\
+N=8, M=28  & 6 6 7    & 0.399 0.310 0.342 \\
+N=10, M=45 & 8 8 8    & 0.942 0.853 0.678 \\
+N=12, M=66 & 10 8 9   & 38.7 1.106 3.840  \\
+N=14, M=91 & 11 11 12 & 1365 410 5216    
+\end{tabular}
+\caption{Valores medios de ejecución del problema de coloreado de grafos}
+\label{tab:my-table}
+\end{table}
 
 
 \end{document}

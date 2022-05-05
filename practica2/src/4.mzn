@@ -5,21 +5,11 @@ int: n_workers = 3;
 set of int: tasks = 1..n_tasks;
 set of int: workers = 1..n_workers;
 
-% start, begin and end
+% array storing start, duration and worker of each task
 array [1..3, tasks] of var int: plan;
 int: START = 1;
 int: DURATION = 2;
 int: WORKER = 3; 
-
-% time required per worker to complete each task
-array [workers, tasks] of var int: duration = [|
-                                                4,3,3,2,4,3,1,1,2|
-                                                7,5,1,5,2,2,2,3,3|
-                                                10,7,4,8,6,1,3,5,4
-                                              |];
-
-% start restrictions between tasks
-array [tasks] of set of int: reqs =  [{}, {A}, {B}, {A}, {C,D}, {C,D}, {C,D}, {A}, {F,H}];
 
 % task indexing
 int: A = 1;
@@ -33,16 +23,30 @@ int: H = 8;
 int: I = 9;
 array [tasks] of string: strTasks = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 
-var int: maxDuration = max([plan[START,task] + plan[DURATION, task] | task in tasks]);
+% time required per worker to complete each task
+array [workers, tasks] of var int: duration = [|
+                                                4,3,3,2,4,3,1,1,2|
+                                                7,5,1,5,2,2,2,3,3|
+                                                10,7,4,8,6,1,3,5,4
+                                              |];
 
+% variable containing the endtime of the construction. to be minimized.
+var int: maxEnd = max([plan[START,task] + plan[DURATION, task] | task in tasks]);
 
+% every start time, duration and worker index should be bigger than one
 constraint forall(row in 1..3)(
     forall(task in tasks)(
         plan[row, task] > 0
     )
 );
 
-constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,B];
+% there are three workers and not more.
+constraint forall(task in tasks)(
+    plan[WORKER, task] <= 3
+);
+
+% start time of each task is conditioned on finish time of previous tasks.
+constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,B];    % for example, task B can't start until task A had finished.
 constraint (plan[START,B] + plan[DURATION,B]) <= plan[START,C];
 constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,D];
 constraint (plan[START,C] + plan[DURATION,C]) <= plan[START,E] /\ (plan[START,D] + plan[DURATION,D]) <= plan[START,E];
@@ -51,14 +55,12 @@ constraint (plan[START,C] + plan[DURATION,C]) <= plan[START,G] /\ (plan[START,D]
 constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,H];
 constraint (plan[START,F] + plan[DURATION,F]) <= plan[START,I] /\ (plan[START,H] + plan[DURATION,H]) <= plan[START,I];
 
-constraint forall(task in tasks)(
-    plan[WORKER, task] <= 3
-);
-
+% the duration of completion of each task depends on the worker in use.
 constraint forall(task in tasks)(
     plan[DURATION, task] == duration[plan[WORKER, task], task]
 );
 
+% ensures that each worker can only work in one task at the same time
 constraint forall(task in tasks)(
     forall(task2 in tasks)(
         if task != task2 then
@@ -70,7 +72,7 @@ constraint forall(task in tasks)(
     )
 );
 
-% solve minimize max(row(plan, START));
-solve minimize maxDuration;
+% minimize the construction end time
+solve minimize maxEnd;
 
-output ["\(plan[i,j]) " ++ if j == n_tasks then "\n" else "" endif | i in 1..3, j in tasks] ++ ["Duración máxima: \(maxDuration)"];
+output ["\(strTasks[i]) \t" | i in tasks] ++ ["\n"] ++ ["\(plan[i,j])\t" ++ if j == n_tasks then "\n" else "" endif | i in 1..3, j in tasks] ++ ["Duración máxima: \(maxEnd-1)"];

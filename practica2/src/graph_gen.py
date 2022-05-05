@@ -27,4 +27,4 @@ def randomgraph(N, M, seed):
 	print("")
 
 
-randomgraph(6, 15, 0)
+randomgraph(4, 6, 2)
