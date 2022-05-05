@@ -6,10 +6,11 @@ set of int: tasks = 1..n_tasks;
 set of int: workers = 1..n_workers;
 
 % array storing start, duration and worker of each task
-array [1..3, tasks] of var int: plan;
+array [1..4, tasks] of var int: plan;
 int: START = 1;
 int: DURATION = 2;
 int: WORKER = 3; 
+int: AUX_WORKER = 4;
 
 % task indexing
 int: A = 1;
@@ -57,22 +58,44 @@ constraint (plan[START,F] + plan[DURATION,F]) <= plan[START,I] /\ (plan[START,H]
 
 % the duration of completion of each task depends on the worker in use.
 constraint forall(task in tasks)(
-    plan[DURATION, task] == duration[plan[WORKER, task], task]
+    if plan[AUX_WORKER, task] == 1 then
+        plan[DURATION, task] == (duration[plan[WORKER, task], task]-2)
+    endif
 );
+
+constraint forall(task in tasks)(
+    if plan[AUX_WORKER, task] == 0 then
+        plan[DURATION, task] == (duration[plan[WORKER, task], task])
+    endif
+);
+
+constraint plan[AUX_WORKER,A] == 1;
+constraint plan[WORKER,A] == 1;
 
 % ensures that each worker can only work in one task at the same time
 constraint forall(task in tasks)(
     forall(task2 in tasks)(
         if task != task2 then
             if plan[WORKER, task] == plan[WORKER, task2] then
-                plan[START, task] + plan[DURATION, task] <= plan[START, task2] xor
-                plan[START, task2] + plan[DURATION, task2] <= plan[START, task]
+                plan[START, task] + plan[DURATION, task] < plan[START, task2] \/
+                plan[START, task2] + plan[DURATION, task2] < plan[START, task]
             endif
         endif
     )
 );
 
+
+constraint forall(task in tasks)(
+    if plan[DURATION, task] < 3 then
+        plan[AUX_WORKER, task] == 0
+    else
+        plan[AUX_WORKER, task] == 0 \/ plan[AUX_WORKER, task] == 1
+    endif
+);
+
+
+
 % minimize the construction end time
 solve minimize maxEnd;
 
-output ["\(strTasks[i]) \t" | i in tasks] ++ ["\n"] ++ ["\(plan[i,j])\t" ++ if j == n_tasks then "\n" else "" endif | i in 1..3, j in tasks] ++ ["Duración máxima: \(maxEnd-1)"];
+output ["\(strTasks[i]) \t" | i in tasks] ++ ["\n"] ++ ["\(plan[i,j])\t" ++ if j == n_tasks then "\n" else "" endif | i in 1..4, j in tasks] ++ ["Duración máxima: \(maxEnd-1)"];
