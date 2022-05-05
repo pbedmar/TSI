@@ -77,8 +77,8 @@ constraint forall(task in tasks)(
     forall(task2 in tasks)(
         if task != task2 then
             if plan[WORKER, task] == plan[WORKER, task2] then
-                plan[START, task] + plan[DURATION, task] < plan[START, task2] \/
-                plan[START, task2] + plan[DURATION, task2] < plan[START, task]
+                plan[START, task] + plan[DURATION, task] <= plan[START, task2] \/
+                plan[START, task2] + plan[DURATION, task2] <= plan[START, task]
             endif
         endif
     )
