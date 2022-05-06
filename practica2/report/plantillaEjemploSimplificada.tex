@@ -53,7 +53,7 @@
 En este ejercicio se pretende resolver el problema de que dada una cantidad de dinero, se devuelve en monedas de 1, 2, 5, 10, 20 y 50 céntimos y en monedas de 1 y 2 euros.
 
 \subsection{Apartado a)}
-En este apartado calculamos cualquier solución válida, o sea, cualquier combinación de esas monedas que sume exactamente el importe introducido. Al no existir ninguna restricción aparte del uso de esas monedas específicas, el número de soluciones es muy alto y crece exponencialmente (como también lo hace el tiempo de ejecución).
+En este apartado calculamos cualquier solución válida, o sea, cualquier combinación de esas monedas que sume exactamente el importe introducido. Al no existir ninguna restricción aparte del uso de esas monedas específicas, el número de soluciones es muy alto y crece exponencialmente (como también lo hace el tiempo de ejecución). Las soluciones no se pueden encontrar en tiempo polinomial. De hecho, nos encontramos ante un problema perteneciente a la clase de problemas NP-duros, existiendo una reducción . 
 % TODO: Crece exponencialmente el número de soluciones y el tiempo?
 
 En la siguiente tabla se muestran los resultados de ejecución en 4 situaciones. La solución encontrada se expresa como un vector [c1,c2,c5,c10,c20,c50,e1,e2], donde cx representa la cantidad de monedas de x céntimos y ex la cantidad de monedas de x euros.
@@ -178,6 +178,12 @@ Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo,
     \centering
         \includegraphics[scale=0.32]{gantt.png}
         \caption{Diagrama de Gantt de la solución sin el cuarto trabajador}
+\end{figure}
+
+\begin{figure}[H] %con el [H] le obligamos a situar aquí la figura
+    \centering
+        \includegraphics[scale=0.32]{gantt2.png}
+        \caption{Diagrama de Gantt de la solución utilizando el trabajador adicional}
 \end{figure}
 
 \section{Problema del coloreado de grafos}

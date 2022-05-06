@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1651766002 "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf" "plantillaEjemploSimplificada" 1651766002
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.aux" 1651766002 2358 06000b761c10bfe173c7f44be32e2e42 ""
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" 1651766001 10689 5454c746bc499d82241c34218a2726d2 ""
+["pdflatex"] 1651792476 "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf" "plantillaEjemploSimplificada" 1651792477
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.aux" 1651792477 2527 f2c293341eb229bc3fe24a28707036f6 ""
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" 1651792476 11102 d6066b4abc2eaff05ebb1498837a0301 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -62,11 +62,12 @@
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1586288259 2432462 fd0fa20e9a3cb5f8169fd0ba1c955158 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
   "gantt.png" 1651748573 110866 74685b121395bfd39fde657a4227368e ""
-  "plantillaEjemploSimplificada.aux" 1651766002 2358 06000b761c10bfe173c7f44be32e2e42 "pdflatex"
-  "plantillaEjemploSimplificada.tex" 1651766001 10689 5454c746bc499d82241c34218a2726d2 ""
+  "gantt2.png" 1651791697 120958 d2b3ea818461fec7ce4a1d88a2c00cc8 ""
+  "plantillaEjemploSimplificada.aux" 1651792477 2527 f2c293341eb229bc3fe24a28707036f6 "pdflatex"
+  "plantillaEjemploSimplificada.tex" 1651792476 11102 d6066b4abc2eaff05ebb1498837a0301 ""
   (generated)
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf"
-  "plantillaEjemploSimplificada.pdf"
-  "plantillaEjemploSimplificada.log"
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.log"
   "plantillaEjemploSimplificada.aux"
+  "plantillaEjemploSimplificada.log"
+  "plantillaEjemploSimplificada.pdf"
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.log"
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf"

@@ -5,12 +5,12 @@ int: n_workers = 3;
 set of int: tasks = 1..n_tasks;
 set of int: workers = 1..n_workers;
 
-% array storing start, duration and worker of each task
-array [1..4, tasks] of var int: plan;
+% array used to encode solution. each column represent an activity. the first row indicates the start time, the second row the assigned worker
+% and the third one if the auxiliary worker has been assigned to the task or not (takes 0 or 1 of values).
+array [1..3, tasks] of var int: plan;
 int: START = 1;
-int: DURATION = 2;
-int: WORKER = 3; 
-int: AUX_WORKER = 4;
+int: WORKER = 2; 
+int: AUX_WORKER = 3;
 
 % task indexing
 int: A = 1;
@@ -31,65 +31,73 @@ array [workers, tasks] of var int: duration = [|
                                                 10,7,4,8,6,1,3,5,4
                                               |];
 
-% variable containing the endtime of the construction. to be minimized.
-var int: maxEnd = max([plan[START,task] + plan[DURATION, task] | task in tasks]);
+% variable containing the endtime of the construction. to be minimized. if there is an auxiliary worker cooperating on the task,
+% the task duration is decreased by 2 days.
+var int: maxEnd = max([plan[START,task] + if plan[AUX_WORKER,task] == 0 then duration[plan[WORKER,task],task] else duration[plan[WORKER,task],task]-2 endif | task in tasks]);
 
-% every start time, duration and worker index should be bigger than one
-constraint forall(row in 1..3)(
-    forall(task in tasks)(
-        plan[row, task] > 0
-    )
-);
-
-% there are three workers and not more.
+% each task start time should be bigger than zero
 constraint forall(task in tasks)(
-    plan[WORKER, task] <= 3
+    plan[START, task] > 0
 );
 
-% start time of each task is conditioned on finish time of previous tasks.
-constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,B];    % for example, task B can't start until task A had finished.
-constraint (plan[START,B] + plan[DURATION,B]) <= plan[START,C];
-constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,D];
-constraint (plan[START,C] + plan[DURATION,C]) <= plan[START,E] /\ (plan[START,D] + plan[DURATION,D]) <= plan[START,E];
-constraint (plan[START,C] + plan[DURATION,C]) <= plan[START,F] /\ (plan[START,D] + plan[DURATION,D]) <= plan[START,F];
-constraint (plan[START,C] + plan[DURATION,C]) <= plan[START,G] /\ (plan[START,D] + plan[DURATION,D]) <= plan[START,G];
-constraint (plan[START,A] + plan[DURATION,A]) <= plan[START,H];
-constraint (plan[START,F] + plan[DURATION,F]) <= plan[START,I] /\ (plan[START,H] + plan[DURATION,H]) <= plan[START,I];
-
-% the duration of completion of each task depends on the worker in use.
+% there are three workers
 constraint forall(task in tasks)(
-    if plan[AUX_WORKER, task] == 1 then
-        plan[DURATION, task] == (duration[plan[WORKER, task], task]-2)
-    endif
+    plan[WORKER, task] > 0 /\ plan[WORKER, task] <= 3
 );
 
+% each auxiliary worker boolean indicator takes 0 (auxiliary worker not participating) or 1 (auxiliary worker participating) as value.
 constraint forall(task in tasks)(
-    if plan[AUX_WORKER, task] == 0 then
-        plan[DURATION, task] == (duration[plan[WORKER, task], task])
-    endif
+    plan[AUX_WORKER, task] >= 0 /\ plan[AUX_WORKER, task] <= 1
 );
 
-constraint plan[AUX_WORKER,A] == 1;
-constraint plan[WORKER,A] == 1;
 
-% ensures that each worker can only work in one task at the same time
+% start time of each task is conditioned on finish time of previous tasks. for example, in the first constraint, task B can't start until task A had finished. 
+% an if-then-else structure is used to select the task durations, depending on the use (or not) of the auxiliary worker.
+
+% task B restrictions
+constraint plan[START,A] + if plan[AUX_WORKER,A] == 0 then duration[plan[WORKER,A],A] else duration[plan[WORKER,A],A]-2 endif <= plan[START,B];
+% task C restrictions
+constraint plan[START,B] + if plan[AUX_WORKER,B] == 0 then duration[plan[WORKER,B],B] else duration[plan[WORKER,B],B]-2 endif <= plan[START,C];
+% task D restrictions
+constraint plan[START,A] + if plan[AUX_WORKER,A] == 0 then duration[plan[WORKER,A],A] else duration[plan[WORKER,A],A]-2 endif <= plan[START,D];
+% task E restrictions
+constraint plan[START,C] + if plan[AUX_WORKER,C] == 0 then duration[plan[WORKER,C],C] else duration[plan[WORKER,C],C]-2 endif <= plan[START,E];
+constraint plan[START,D] + if plan[AUX_WORKER,D] == 0 then duration[plan[WORKER,D],D] else duration[plan[WORKER,D],D]-2 endif <= plan[START,E];
+% task F restrictions
+constraint plan[START,C] + if plan[AUX_WORKER,C] == 0 then duration[plan[WORKER,C],C] else duration[plan[WORKER,C],C]-2 endif <= plan[START,F];
+constraint plan[START,D] + if plan[AUX_WORKER,D] == 0 then duration[plan[WORKER,D],D] else duration[plan[WORKER,D],D]-2 endif <= plan[START,F];
+% task G restrictions
+constraint plan[START,C] + if plan[AUX_WORKER,C] == 0 then duration[plan[WORKER,C],C] else duration[plan[WORKER,C],C]-2 endif <= plan[START,G];
+constraint plan[START,D] + if plan[AUX_WORKER,D] == 0 then duration[plan[WORKER,D],D] else duration[plan[WORKER,D],D]-2 endif <= plan[START,G];
+% task H restrictions
+constraint plan[START,A] + if plan[AUX_WORKER,A] == 0 then duration[plan[WORKER,A],A] else duration[plan[WORKER,A],A]-2 endif <= plan[START,H];
+% task I restrictions
+constraint plan[START,F] + if plan[AUX_WORKER,F] == 0 then duration[plan[WORKER,F],F] else duration[plan[WORKER,F],F]-2 endif <= plan[START,I];
+constraint plan[START,H] + if plan[AUX_WORKER,H] == 0 then duration[plan[WORKER,H],H] else duration[plan[WORKER,H],H]-2 endif <= plan[START,I];
+
+
+% ensures that each worker can only work in one task at the same time. the durations depending on the use of the auxiliary worker are also taken into account.
 constraint forall(task in tasks)(
     forall(task2 in tasks)(
         if task != task2 then
+            % constraint for the three main workers
             if plan[WORKER, task] == plan[WORKER, task2] then
-                plan[START, task] + plan[DURATION, task] <= plan[START, task2] \/
-                plan[START, task2] + plan[DURATION, task2] <= plan[START, task]
+                plan[START, task] + if plan[AUX_WORKER,task] == 0 then duration[plan[WORKER,task],task] else duration[plan[WORKER,task],task]-2 endif <= plan[START, task2] \/
+                plan[START, task2] + if plan[AUX_WORKER,task2] == 0 then duration[plan[WORKER,task2],task2] else duration[plan[WORKER,task2],task2]-2 endif <= plan[START, task]
+            endif /\
+            % constraint for the auxiliary worker (it also can't help two workers at the same time
+            if plan[AUX_WORKER, task] == 1 /\ plan[AUX_WORKER, task2] == 1 then
+                plan[START, task] + duration[plan[WORKER,task],task]-2 <= plan[START, task2] \/
+                plan[START, task2] + duration[plan[WORKER,task2],task2]-2 <= plan[START, task]
             endif
         endif
     )
 );
 
-
+% the auxiliary worker can only participate on tasks which take 3 days or more
 constraint forall(task in tasks)(
-    if plan[DURATION, task] < 3 then
+    if duration[plan[WORKER,task],task] < 3 then
         plan[AUX_WORKER, task] == 0
-    else
-        plan[AUX_WORKER, task] == 0 \/ plan[AUX_WORKER, task] == 1
     endif
 );
 
@@ -98,4 +106,5 @@ constraint forall(task in tasks)(
 % minimize the construction end time
 solve minimize maxEnd;
 
-output ["\(strTasks[i]) \t" | i in tasks] ++ ["\n"] ++ ["\(plan[i,j])\t" ++ if j == n_tasks then "\n" else "" endif | i in 1..4, j in tasks] ++ ["Duración máxima: \(maxEnd-1)"];
+output ["\(strTasks[i]) \t" | i in tasks] ++ ["\n"] ++ ["\(plan[i,j])\t" ++ if j == n_tasks then "\n" else "" endif | i in 1..3, j in tasks] 
+++ ["\(duration[plan[WORKER,task],task]) \t" | task in tasks] ++ ["\nDuración mínima: \(maxEnd-1)"];
