@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1651792476 "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf" "plantillaEjemploSimplificada" 1651792477
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.aux" 1651792477 2527 f2c293341eb229bc3fe24a28707036f6 ""
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" 1651792476 11102 d6066b4abc2eaff05ebb1498837a0301 ""
+["pdflatex"] 1652006606 "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf" "plantillaEjemploSimplificada" 1652006645
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.aux" 1652006607 2527 70be311feb4687177eeab3d90b8aa76a ""
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.tex" 1652006606 13673 4ea9fb0578cb33096dc3f055dba7b17d ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -23,6 +23,7 @@
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm" 1136768653 1124 6c73e740cf17375f03eec0ee63599741 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1136768653 1116 933a60c408fc0a863a92debe84b2d294 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy8.tfm" 1136768653 1120 8b7d695260f3cff42e636090a8002094 ""
+  "/usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1248133631 35469 70d41d2b9ea31d5d813066df7c99281c ""
   "/usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb" 1215737283 140176 d4962f948b4cc0adf4d3dde77a128c95 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb" 1215737283 135942 859a90cad7494a1e79c94baf546d7de5 ""
@@ -63,11 +64,11 @@
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
   "gantt.png" 1651748573 110866 74685b121395bfd39fde657a4227368e ""
   "gantt2.png" 1651791697 120958 d2b3ea818461fec7ce4a1d88a2c00cc8 ""
-  "plantillaEjemploSimplificada.aux" 1651792477 2527 f2c293341eb229bc3fe24a28707036f6 "pdflatex"
-  "plantillaEjemploSimplificada.tex" 1651792476 11102 d6066b4abc2eaff05ebb1498837a0301 ""
+  "plantillaEjemploSimplificada.aux" 1652006607 2527 70be311feb4687177eeab3d90b8aa76a "pdflatex"
+  "plantillaEjemploSimplificada.tex" 1652006606 13673 4ea9fb0578cb33096dc3f055dba7b17d ""
   (generated)
-  "plantillaEjemploSimplificada.aux"
-  "plantillaEjemploSimplificada.log"
-  "plantillaEjemploSimplificada.pdf"
-  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.log"
   "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.pdf"
+  "plantillaEjemploSimplificada.log"
+  "plantillaEjemploSimplificada.aux"
+  "/Users/pedrobedmar/GoogleDrive/4_ING_INFORMATICA/TSI/practicas/practica2/report/plantillaEjemploSimplificada.log"
+  "plantillaEjemploSimplificada.pdf"

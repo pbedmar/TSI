@@ -52,11 +52,22 @@
 \section{Problema de las monedas}
 En este ejercicio se pretende resolver el problema de que dada una cantidad de dinero, se devuelve en monedas de 1, 2, 5, 10, 20 y 50 céntimos y en monedas de 1 y 2 euros.
 
-\subsection{Apartado a)}
-En este apartado calculamos cualquier solución válida, o sea, cualquier combinación de esas monedas que sume exactamente el importe introducido. Al no existir ninguna restricción aparte del uso de esas monedas específicas, el número de soluciones es muy alto y crece exponencialmente (como también lo hace el tiempo de ejecución). Las soluciones no se pueden encontrar en tiempo polinomial. De hecho, nos encontramos ante un problema perteneciente a la clase de problemas NP-duros, existiendo una reducción . 
-% TODO: Crece exponencialmente el número de soluciones y el tiempo?
+De por sí, el encontrar una única solución al problema de las monedas se engloba en la clase de problemas NP-completos. Esto se debe a que:
+\begin{itemize}
+    \item SAT $\leq_P$ Coin-Problem: Existe una reducción en tiempo polinomial desde este problema a otro que ya se ha demostrado que pertenece a la clase NP-completo, como es SAT.
+    \item Dada una posible solución al problema de las monedas, se puede verificar si es válida o no en tiempo polinomial.
+\end{itemize}
+Estamos ante lo que se conoce como un problema de decisión.
 
-En la siguiente tabla se muestran los resultados de ejecución en 4 situaciones. La solución encontrada se expresa como un vector [c1,c2,c5,c10,c20,c50,e1,e2], donde cx representa la cantidad de monedas de x céntimos y ex la cantidad de monedas de x euros.
+En el apartado c ocurre lo mismo, sólo tenemos que encontrar una solución, pero debe de ser la óptima. Los problemas de optimización son NP-duros y no NP-completos.
+
+\subsection{Apartado a)}
+
+En los apartados a y b no se nos pide encontrar una única solución: se nos pide conocer todas las soluciones posibles. Por ello, nos encontramos ante un problema que con una complejidad mayor que encontrar una única solución.
+
+Encontrar todas las soluciones posibles no es un problema NP-completo, sino NP-duro. Dada una lista de posibles soluciones, no podemos verificar si esas son todas las soluciones posibles en tiempo polinomial. Otra forma de verlo es dándose cuenta de que no estamos ante un problema de decisión. Por tanto, no estamos ante un problema NP-completo.
+
+Como se puede observar en la siguiente tabla, el número de soluciones crece muy rápidamente (y de la misma forma lo hace el tiempo de ejecución). En cada uno de los cuatro casos, la solución encontrada se expresa como un vector [c1,c2,c5,c10,c20,c50,e1,e2], donde cx representa la cantidad de monedas de x céntimos y ex la cantidad de monedas de x euros.
 
 \begin{table}[H]
 \centering
@@ -76,7 +87,7 @@ Importe &
 \end{table}
 
 \subsection{Apartado b)}
-En este caso, añadimos restricciones extra que impiden que con monedas de céntimo podamos representar un euro o más. Debido a esto el espacio de búsqueda se va a reducir y el tiempo de ejecución por tanto también disminuye. 
+En este caso, añadimos restricciones extra que impiden que con monedas de céntimo podamos representar un euro o más. Debido a esto, el espacio de búsqueda se va a reducir y el tiempo de ejecución por tanto también disminuye. 
 
 \begin{table}[H]
 \centering
@@ -87,16 +98,18 @@ Importe &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Número total\\ de soluciones\end{tabular}} &
     \multicolumn{1}{c}{\begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular}} \\ \midrule
 0.17€ & {[}17,0,0,0,0,0,0,0{]} $\rightarrow$ 17 monedas  & 28    & 0.342 \\
-1.43€ & {[}43,0,0,0,0,0,1,0{]} $\rightarrow$ 143 monedas & 284   & 0.311 \\
-2.35€ & {[}35,0,0,0,0,0,2,0{]} $\rightarrow$ 235 monedas & 324   & 0.412 \\
-4.99€ & {[}99,0,0,0,0,0,4,0{]} $\rightarrow$ 499 monedas & 13098 & 2.200 \\ \bottomrule
+1.43€ & {[}43,0,0,0,0,0,1,0{]} $\rightarrow$ 44 monedas & 284   & 0.311 \\
+2.35€ & {[}35,0,0,0,0,0,2,0{]} $\rightarrow$ 37 monedas & 324   & 0.412 \\
+4.99€ & {[}99,0,0,0,0,0,4,0{]} $\rightarrow$ 103 monedas & 13098 & 2.200 \\ \bottomrule
 \end{tabular}
 \caption{Resultados del apartado b) del problema de las monedas}
 \label{tab:my-table}
 \end{table}
 
 \subsection{Apartado c)}
-En este caso observamos que los tiempos de ejecución son menores o iguales que en el caso anterior. Esto se debe a que para problemas de optimización, MiniZinc no recorre todo el espacio de búsqueda, sino aquellas áreas donde es más probable encontrar la solución primero.
+En este caso observamos que los tiempos de ejecución son menores o iguales que en el caso anterior. Esto se debe a que para problemas de optimización, MiniZinc no recorre todo el espacio de búsqueda: al inicio, elige una solución cualquiera y entra en un proceso iterativo donde añade como restricción que la próxima solución tenga un coste inferior a la actual. Esto se repite hasta que se encuentra con un problema insatisfacible. En ese momento sabe que la solución óptima es la generada en el paso anterior y es la que se devuelve.
+
+Esto permite acotar en gran medida la búsqueda y acelerar el proceso, como se observa en la tabla inferior.
 % TODO: es correcto?
 
 % Please add the following required packages to your document preamble:
@@ -119,12 +132,15 @@ En este caso observamos que los tiempos de ejecución son menores o iguales que 
 
 \subsection{Apartado d)}
 \subsubsection*{¿Qué ocurriría si, usando la codificación (a) para encontrar todas las soluciones, el importe buscado es mucho mayor?} 
+
+Como hemos mencionado anteriormente, este problema es NP-duro.
+
 Ocurre que el espacio de búsqueda crece exponencialmente, y de la misma forma lo hace el tiempo de ejecución, por lo tanto llega un punto en el que el problema es inabarcable. 
 
 \subsubsection*{¿Se podría encontrar alguna solución (usando la codificación de (a) o cualquier otra) de este problema con un importe del orden de los millones de euros? En caso afirmativo, ¿cuál podría ser una estrategia prometedora?}
-Sí, una codificación donde únicamente existan monedas de un céntimo sería más eficiente y podría resolver el problema con tiempos de ejecución menores. Su coste computacional sería O(n).
+Sí, una codificación donde únicamente existan monedas de un céntimo podría resolver el problema con tiempos de ejecución menores. En cada iteración, hasta llegar a la cantidad deseada, se aumentaría una variable contador en un céntimo. Su coste computacional sería O(n), donde n es el número de céntimos de la cantidad a alcanzar.
 
-Otra estrategia prometedora podría utilizar monedas de dos euros, dividiendo la cantidad millonaria entre esta cifra de forma iterativa, hasta llegar a un punto donde no pudiéramos dividir más por ser el cociente de la división menor a 1. En ese punto, completaríamos con el resto de monedas disponibles. De esta forma, la complejidad de tratar la cantidad millonaria se reduce en gran medida.
+Otra estrategia aún más prometedora escogería primero las monedas más grandes posibles. En el momento en el que esa moneda tiene un valor mayor que el dinero restante, se utiliza la siguiente moneda y así sucesivamente. De esta forma minimizamos el número de monedas necesarias y se reduce el espacio de búsqueda.
 %TODO: Está correcto lo que acabo de explicar?
 
 \section{Problema de los horarios}
@@ -172,6 +188,8 @@ En este ejercicio solo existe una solución posible: el andaluz bebe agua y la c
 % TODO: qué más poner en este ejercicio?
 
 \section{Problema de la asignación de tareas}
+A continuación mostramos los diagramas de Gantt con las soluciones óptimas al problema de asignación de tareas. El primer trabajador viene representado por el color azul, el segundo trabajador por el rojo y el tercero por el verde.
+
 Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo, el tiempo mínimo requerido para completar la construcción es de 12 días.
 
 \begin{figure}[H] %con el [H] le obligamos a situar aquí la figura
@@ -180,6 +198,8 @@ Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo,
         \caption{Diagrama de Gantt de la solución sin el cuarto trabajador}
 \end{figure}
 
+En la segunda versión, este tiempo se reduce a 8 días. En las tareas que participa el trabajador de apoyo lo indicamos escribiendo T. extra.
+
 \begin{figure}[H] %con el [H] le obligamos a situar aquí la figura
     \centering
         \includegraphics[scale=0.32]{gantt2.png}
@@ -187,8 +207,7 @@ Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo,
 \end{figure}
 
 \section{Problema del coloreado de grafos}
-Al igual que ocurre en el problema 1a), este también crece de forma exponencial y se hace inabarcable. Se puede comprobar observando los tiempos de ejecución en la tabla inferior.
-% TODO: el profesor espera aquí que hablemos de propagación unitaria?
+En la siguiente tabla se pueden apreciar los resultados de ejecución para diferentes tamaños de grafos. En cada caso, realizamos 3 ejecuciones y en la tabla indicamos el número de colores mínimo y tiempo de ejecución promedios. Para generar los grafos siempre utilizamos las mismas semillas: 0, 1 y 2.
 
 \begin{table}[H]
 \centering
@@ -196,16 +215,23 @@ Al igual que ocurre en el problema 1a), este también crece de forma exponencial
 \multicolumn{1}{l|}{Tamaño del grafo} &
     \begin{tabular}[c]{@{}c@{}}Número de\\ colores mínimo\end{tabular} &
     \begin{tabular}[c]{@{}c@{}}Runtime\\ (en segundos)\end{tabular} \\ \hline
-N=4, M=6   & 3 3 2    & 0.595 0.598 0.328 \\
-N=6, M=15  & 5 5 4    & 0.522 0.533 0.606 \\
-N=8, M=28  & 6 6 7    & 0.399 0.310 0.342 \\
-N=10, M=45 & 8 8 8    & 0.942 0.853 0.678 \\
-N=12, M=66 & 10 8 9   & 38.7 1.106 3.840  \\
-N=14, M=91 & 11 11 12 & 1365 410 5216    
+N=4, M=6   & 2.667   & 0.507 \\
+N=6, M=15  & 4.667   & 0.554 \\
+N=8, M=28  & 6.333   & 0.350 \\
+N=10, M=45 & 8       & 2.473 \\
+N=12, M=66 & 9       & 14.54  \\
+N=14, M=91 & 11.333  & 2330.33    
 \end{tabular}
 \caption{Valores medios de ejecución del problema de coloreado de grafos}
 \label{tab:my-table}
 \end{table}
 
+En respuesta a la pregunta formulada en el guion, no es un problema que se pueda escalar de forma sencilla, debido a que es NP-duro. Existe una reducción de este problema a otros que ya se conocen por ser NP-duros, como MAXSAT: MAXSAT $\leq_P$ Edge-Coloring.
+
+Es NP-duro pero no se encuentra en NP, por lo tanto no es NP-completo. Esto es así porque no es un problema de decisión, sino de optimización. Otra forma de comprobar lo mismo es observando que dada una posible solución del problema, no podemos verificar si es la óptima en tiempo polinomial.
+
+Los problemas NP-duros se pueden resolver en tiempo polinomial por una máquina de Turing no determinista. Aunque se cree que no existen algoritmos que permiten ejecutarlos en tiempo polinomial en una máquina determinista, no se ha demostrado formalmente.
+
+Es por ello que son problemas muy costosos y no escalan de forma adecuada.
 
 \end{document}
