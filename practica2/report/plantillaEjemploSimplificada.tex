@@ -59,13 +59,11 @@ De por sí, el encontrar una única solución al problema de las monedas se engl
 \end{itemize}
 Estamos ante lo que se conoce como un problema de decisión.
 
-En el apartado c ocurre lo mismo, sólo tenemos que encontrar una solución, pero debe de ser la óptima. Los problemas de optimización son NP-duros y no NP-completos.
-
 \subsection{Apartado a)}
 
-En los apartados a y b no se nos pide encontrar una única solución: se nos pide conocer todas las soluciones posibles. Por ello, nos encontramos ante un problema que con una complejidad mayor que encontrar una única solución.
+En los apartados a y b no se nos pide encontrar una única solución: se nos pide conocer todas las soluciones posibles. Por ello, nos encontramos ante un problema que tiene una complejidad mayor que encontrar una única solución.
 
-Encontrar todas las soluciones posibles no es un problema NP-completo, sino NP-duro. Dada una lista de posibles soluciones, no podemos verificar si esas son todas las soluciones posibles en tiempo polinomial. Otra forma de verlo es dándose cuenta de que no estamos ante un problema de decisión. Por tanto, no estamos ante un problema NP-completo.
+Encontrarlas todas no es un problema NP-completo, sino NP-duro. Dada una lista de posibles soluciones, no podemos verificar en tiempo polinomial si esas son todas las existentes. Otra forma de verlo es dándose cuenta de que no estamos ante un problema de decisión. Por tanto, no estamos ante un problema NP-completo.
 
 Como se puede observar en la siguiente tabla, el número de soluciones crece muy rápidamente (y de la misma forma lo hace el tiempo de ejecución). En cada uno de los cuatro casos, la solución encontrada se expresa como un vector [c1,c2,c5,c10,c20,c50,e1,e2], donde cx representa la cantidad de monedas de x céntimos y ex la cantidad de monedas de x euros.
 
@@ -188,7 +186,7 @@ En este ejercicio solo existe una solución posible: el andaluz bebe agua y la c
 % TODO: qué más poner en este ejercicio?
 
 \section{Problema de la asignación de tareas}
-A continuación mostramos los diagramas de Gantt con las soluciones óptimas al problema de asignación de tareas. El primer trabajador viene representado por el color azul, el segundo trabajador por el rojo y el tercero por el verde.
+A continuación mostramos los diagramas de Gantt con las soluciones óptimas al problema de asignación de tareas. El primer trabajador aparece representado por el color azul, el segundo trabajador por el rojo y el tercero por el verde.
 
 Utilizando la primera versión del ejercicio, sin el cuarto trabajador de apoyo, el tiempo mínimo requerido para completar la construcción es de 12 días.
 
@@ -226,7 +224,7 @@ N=14, M=91 & 11.333  & 2330.33
 \label{tab:my-table}
 \end{table}
 
-En respuesta a la pregunta formulada en el guion, no es un problema que se pueda escalar de forma sencilla, debido a que es NP-duro. Existe una reducción de este problema a otros que ya se conocen por ser NP-duros, como MAXSAT: MAXSAT $\leq_P$ Edge-Coloring.
+En respuesta a la pregunta formulada en el guion, no es un problema que pueda escalar de forma sencilla, debido a que es NP-duro. Existe una reducción de este problema a MAXSAT: MAXSAT $\leq_P$ Edge-Coloring.
 
 Es NP-duro pero no se encuentra en NP, por lo tanto no es NP-completo. Esto es así porque no es un problema de decisión, sino de optimización. Otra forma de comprobar lo mismo es observando que dada una posible solución del problema, no podemos verificar si es la óptima en tiempo polinomial.
 
