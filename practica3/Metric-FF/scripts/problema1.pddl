@@ -1,17 +1,25 @@
 (define (problem problema1)
     (:domain dominio1)
     (:objects
+        ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
         loc21 loc22 loc23 loc24 - localizacion
         loc31 loc32 loc33 loc34 - localizacion
         loc44 - localizacion
 
+        ; declaración de edificios
         centroDeMando1 - edificio
+
+        ; declaración de unidades
         VCE1 - unidad
     )
     (:init
 
-        ; Definición del tablero
+        ; asignar tipo a cada variable
+        (tipoEdificio centroDeMando1 centroDeMando)
+        (tipoUnidad VCE1 VCE)
+
+        ; Definición del tablero, donde se indican los caminos existentes entre casillas
         (existeCamino loc11 loc12)
         (existeCamino loc12 loc11)
 
@@ -58,20 +66,21 @@
         (existeCamino loc44 loc34)
 
 
-        ; Edificios
+        ; se construye centroDeMando 1 en lc11
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
-        ; Unidades
+        ; se situa VCE1 en loc11
         (en VCE1 loc11)
 
-        ; Minerales
-        (en mineral loc22) ; Cómo prevenir que en una misma localización no haya más de un recurso?
+        ; se situan fuentes de mineral en loc22 y loc23
+        (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
         (en mineral loc23)
         
     )
     (:goal
         (and
+            ; el objetivo es generar recursos de tipo mineral
             (extrayendoRecurso mineral)
         )
     )
