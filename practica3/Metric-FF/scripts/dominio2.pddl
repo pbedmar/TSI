@@ -91,7 +91,7 @@
                 ; la unidad que se asigna debe ser de tipo VCE
                 (tipoUnidad ?u VCE)
 
-                ; si el recurso que se quiere obtener es gas vespeno, debe existir 
+                ; si el recurso que se quiere obtener es gas vespeno, debe existir un edificio extractor construido en la localización del gas
                 (imply (en gas ?l)
                     (exists (?e - edificio)
                         (and 

@@ -1,4 +1,4 @@
-(define (domain dominio2)
+(define (domain dominio3)
     (:requirements :strips :typing :negative-preconditions) ; TODO: puedo utilizar :negative-preconditions?
     (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -91,7 +91,7 @@
                 ; la unidad que se asigna debe ser de tipo VCE
                 (tipoUnidad ?u VCE)
 
-                ; si el recurso que se quiere obtener es gas vespeno, debe existir 
+                ; si el recurso que se quiere obtener es gas vespeno, debe existir un edificio extractor construido en la localización del gas
                 (imply (en gas ?l)
                     (exists (?e - edificio)
                         (and 
@@ -114,7 +114,7 @@
 
     ; una unidad construye un edificio en una determinada localizacion, utilizando un recurso concreto
     (:action Construir
-        :parameters (?u - unidad ?e - edificio ?l - localizacion ?r - recurso)
+        :parameters (?u - unidad ?e - edificio ?l - localizacion)
         :precondition
             (and
                 ; la unidad debe estar en la localizacion donde se va a construir
@@ -126,14 +126,30 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
-                ; el recurso a utilizar debe estar extrayéndose
-                (extrayendoRecurso ?r)
+                ; se recorren todos los tipos de recurso existentes 
+                (forall (?tr - tRecurso)
+                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
+                    (exists (?te - tEdificio)
+                        (and
+                            (tipoEdificio ?e ?te)
+                            (imply (construccionRequiere ?te ?tr)
+                                (extrayendoRecurso ?tr)
+                            )
+                        )
+                    )
+                )
 
                 ; no se debe haber construído el edificio previamente
                 (not (edificioConstruido ?e))
 
-                ; el edificio requiere un determinado recurso
-                (construccionRequiere ?e ?r)
+                ; no puede existir ningún edificio construido en la localización ?l
+                (forall (?e2 - edificio) 
+                    ; si esto no se cumple, el imply es falso
+                    (imply (en ?e2 ?l)
+                        (not (edificioConstruido ?e2))
+                    )
+                )
+
             )
         :effect
             (and

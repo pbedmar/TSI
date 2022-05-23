@@ -1,5 +1,5 @@
-(define (problem problema2)
-    (:domain dominio2)
+(define (problem problema3)
+    (:domain dominio3)
     (:objects
         ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
@@ -8,18 +8,25 @@
         loc44 - localizacion
 
         ; declaración de edificios
-        centroDeMando1 extractor1 - edificio
+        centroDeMando1 extractor1 barracones1 - edificio
 
         ; declaración de unidades
-        VCE1 VCE2 - unidad
+        VCE1 VCE2 VCE3 - unidad
     )
     (:init
 
         ; asignar tipo a cada variable
         (tipoEdificio centroDeMando1 centroDeMando)
         (tipoEdificio extractor1 extractor)
+        (tipoEdificio barracones1 barracon)
         (tipoUnidad VCE1 VCE)
         (tipoUnidad VCE2 VCE)
+        (tipoUnidad VCE3 VCE)
+
+        ; recursos requeridos para cada tipo de edificio
+        (construccionRequiere barracon mineral)
+        (construccionRequiere barracon gas)
+        (construccionRequiere extractor mineral)
 
         ; Definición del tablero, donde se indican los caminos existentes entre casillas
         (existeCamino loc11 loc12)
@@ -72,13 +79,16 @@
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
-        ; se indica dónde se va a construir el extractor1, para la que se requieren minerales
+        ; localización de extractor1
         (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-        (construccionRequiere extractor1 mineral)
 
+        ; localización de barracones1
+        (en barracones1 loc33)
+        
         ; se situa VCE1 en loc11
         (en VCE1 loc11)
         (en VCE2 loc11)
+        (en VCE3 loc11)
 
         ; se situan fuentes de mineral en loc22 y loc23
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
@@ -91,8 +101,9 @@
     )
     (:goal
         (and
-            ; el objetivo es generar recursos de tipo gas
-            (extrayendoRecurso gas)
+            ; el objetivo es construir barracones en la localización loc33
+            (edificioConstruido barracones1)
+            ; (en barracones1 loc33) TODO: es esto necesario??
         )
     )
 )
