@@ -43,10 +43,10 @@
         ; comprobamos que la unidad es de un tipo concreto
         (tipoUnidad ?u - unidad ?t - tUnidad)
 
-        ; comprobamos que la unidad es de un tipo concreto
+        ; comprobamos que el edificio es de un tipo concreto
         (tipoEdificio ?e - edificio ?t - tEdificio)
 
-        ; comprobamos si un determinado edificio ha sido construido
+        ; indicamos el recurso necesario para construir un edificio
         (construccionRequiere ?e - edificio ?r - recurso)
     )
 

@@ -1,4 +1,4 @@
-(define (domain dominio3)
+(define (domain dominio4)
     (:requirements :strips :typing :negative-preconditions) ; TODO: puedo utilizar :negative-preconditions?
     (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -15,7 +15,7 @@
 
     (:constants
         ; los VCE son un tipo de unidades que tienen la capacidad de recolectar un recurso y de construir
-        VCE - tUnidad
+        VCE marine soldado - tUnidad
 
         ; los edificios pueden ser de tipo centro de mando, barracon o edificio
         centroDeMando barracon extractor - tEdificio
@@ -43,11 +43,20 @@
         ; comprobamos que la unidad es de un tipo concreto
         (tipoUnidad ?u - unidad ?t - tUnidad)
 
-        ; comprobamos que la unidad es de un tipo concreto
+        ; comprobamos que el edificio es de un tipo concreto
         (tipoEdificio ?e - edificio ?t - tEdificio)
 
-        ; comprobamos si un determinado edificio ha sido construido
+        ; indicamos el recurso necesario para construir un edificio
         (construccionRequiere ?e - edificio ?r - recurso)
+
+        ; indicamos el recurso necesario para generar una unidad
+        (unidadRequiere ?u - unidad ?r - recurso)
+
+        ; indicamos el tipo de edificio donde se debe generar una unidad
+        (unidadGeneradaEn ?u - unidad ?te - tEdificio)
+
+        ; indicamos que se ha generado una unidad
+        (unidadGenerada ?u - unidad)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -155,6 +164,58 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
+            )
+    )
+
+    (:action Reclutar
+        :parameters (?e - edificio ?u - unidad ?l - localizacion)
+        :precondition
+            (and
+                ; el edificio debe estar en la localización correcta
+                (en ?e ?l)
+
+                ; el edificio debe haber sido construido
+                (edificioConstruido ?e)
+
+                ; la unidad a generar no ha debido ser generada anteriormente
+                (not (unidadGenerada ?u))
+
+                ; la unidad debe de ser generada en el edificio que le corresponde según su tipo
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de la unidad
+                        (tipoUnidad ?u ?tu)
+                        (exists (?te - tEdificio)
+                            (and
+                                ; extraemos el tipo de edificio
+                                (tipoEdificio ?e ?te)
+                                ; nos aseguramos de que el tipo de unidad se corresponde con el tipo de edificio donde debe de ser generada
+                                (unidadGeneradaEn ?tu ?te)
+                            )
+                        )
+                    )
+                )
+
+                ; asegura que se están extrayendo los recursos necesarios para generar la unidad
+                (forall (?tr - tRecurso)
+                    (exists (?tu - tUnidad)
+                        (and
+                            ; extraemos el tipo de unidad
+                            (tipoUnidad ?u ?tu)
+                            ; si su generación requiere algún recurso, debe de estar extrayéndose
+                            (imply (unidadRequiere ?tu ?tr)
+                                (extrayendoRecurso ?tr)
+                            )
+                        )
+                    )
+                )
+            )
+        :effect
+            (and
+                ; se ha reclutado la unidad en la localización del edificio generador
+                (en ?u ?l)
+                ; se ha reclutado la unidad
+                (unidadGenerada ?u)
             )
     )
 )

@@ -73,7 +73,7 @@
         ; se situa VCE1 en loc11
         (en VCE1 loc11)
 
-        ; se situan fuentes de mineral en loc22 y loc23
+        ; se situan fuentes de mineral en loc22 y loc32
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
         (en mineral loc32)
         

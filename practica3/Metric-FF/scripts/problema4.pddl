@@ -1,5 +1,5 @@
-(define (problem problema3)
-    (:domain dominio3)
+(define (problem problema4)
+    (:domain dominio4)
     (:objects
         ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
@@ -12,6 +12,8 @@
 
         ; declaración de unidades
         VCE1 VCE2 VCE3 - unidad
+        marine1 marine2 - unidad
+        soldado1 - unidad
     )
     (:init
 
@@ -22,11 +24,25 @@
         (tipoUnidad VCE1 VCE)
         (tipoUnidad VCE2 VCE)
         (tipoUnidad VCE3 VCE)
+        (tipoUnidad marine1 marine)
+        (tipoUnidad marine2 marine)
+        (tipoUnidad soldado1 soldado)
 
-        ; recursos requeridos para cada tipo de edificio
+        ; recursos requeridos para construir cada tipo de edificio
         (construccionRequiere barracon mineral)
         (construccionRequiere barracon gas)
         (construccionRequiere extractor mineral)
+
+        ; recursos requeridos para generar cada tipo de unidad
+        (unidadRequiere VCE mineral)
+        (unidadRequiere marine mineral)
+        (unidadRequiere soldado mineral)
+        (unidadRequiere soldado gas)
+
+        ; en que tipo de edificio se genera cada tipo de unidad
+        (unidadGeneradaEn VCE centroDeMando)
+        (unidadGeneradaEn marine barracon)
+        (unidadGeneradaEn soldado barracon)
 
         ; Definición del tablero, donde se indican los caminos existentes entre casillas
         (existeCamino loc11 loc12)
@@ -79,31 +95,27 @@
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
-        ; localización de extractor1
+        ; localización de edificios
         (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-
-        ; localización de barracones1
         (en barracones1 loc33)
         
-        ; se situa VCE1 en loc11
+        ; localizacion de unidades
+        (unidadGenerada VCE1)
         (en VCE1 loc11)
-        (en VCE2 loc11)
-        (en VCE3 loc11)
 
-        ; se situan fuentes de mineral en loc22 y loc23
+        ; localizacion de recursos
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
         (en mineral loc32)
-
-        ; se situa una fuente de gas en loc44
         (en gas loc44)
 
         
     )
     (:goal
         (and
-            ; el objetivo es construir barracones en la localización loc33
-            (edificioConstruido barracones1)
-            ; (en barracones1 loc33) TODO: es esto necesario??
+            ; los marines y el soldado deben encontrarse en las posiciones indicadas
+            (en marine1 loc31)
+            (en marine2 loc24)
+            (en soldado1 loc12)
         )
     )
 )
