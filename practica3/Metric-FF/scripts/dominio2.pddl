@@ -1,4 +1,4 @@
-(define (domain dominio1)
+(define (domain dominio2)
     (:requirements :strips :typing :negative-preconditions) ; TODO: puedo utilizar :negative-preconditions?
     (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -17,11 +17,11 @@
         ; los VCE son un tipo de unidades que tienen la capacidad de recolectar un recurso y de construir
         VCE - tUnidad
 
-        ; los edificios pueden ser de tipo centro de mando o barracon
+        ; los edificios pueden ser de tipo centro de mando, barracon o edificio
         centroDeMando barracon extractor - tEdificio
 
         ; existen dos tipos de recurso, mineral y gas
-        mineral gas - tRecurso ; TODO: es esto correcto??
+        mineral gas - tRecurso
     )
 
     (:predicates
@@ -42,6 +42,12 @@
 
         ; comprobamos que la unidad es de un tipo concreto
         (tipoUnidad ?u - unidad ?t - tUnidad)
+
+        ; comprobamos que la unidad es de un tipo concreto
+        (tipoEdificio ?e - edificio ?t - tEdificio)
+
+        ; comprobamos si un determinado edificio ha sido construido
+        (construccionRequiere ?e - edificio ?r - recurso)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -84,6 +90,17 @@
 
                 ; la unidad que se asigna debe ser de tipo VCE
                 (tipoUnidad ?u VCE)
+
+                ; si el recurso que se quiere obtener es gas vespeno, debe existir 
+                (imply (en gas ?l)
+                    (exists (?e - edificio)
+                        (and 
+                            (edificioConstruido ?e)
+                            (tipoEdificio ?e extractor)
+                            (en ?e ?l)
+                        )
+                    )
+                )
             )
         :effect
             (and
@@ -95,20 +112,32 @@
             )
     )
 
-
+    ; una unidad construye un edificio en una determinada localizacion, utilizando un recurso concreto
     (:action Construir
         :parameters (?u - unidad ?e - edificio ?l - localizacion ?r - recurso)
         :precondition
             (and
+                ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
+
+                ; el edificio debe estar planificado en una determinada posicion de antemano 
+                (en ?e ?l)
+
+                ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
+
+                ; el recurso a utilizar debe estar extrayéndose
                 (extrayendoRecurso ?r)
+
+                ; no se debe haber construído el edificio previamente
                 (not (edificioConstruido ?e))
+
+                ; el edificio requiere un determinado recurso
+                (construccionRequiere ?e ?r)
             )
         :effect
             (and
-                ; (unidadTrabajando ?u) TODO: Es esto correcto? una unidad se queda trabajando en un edificio hasta terminar la ejecución?
-                (en ?e ?l)
+                ; se marca el edificio como construido
                 (edificioConstruido ?e)
             )
     )

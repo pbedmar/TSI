@@ -1,5 +1,5 @@
-(define (problem problema1)
-    (:domain dominio1)
+(define (problem problema2)
+    (:domain dominio2)
     (:objects
         ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
@@ -8,16 +8,18 @@
         loc44 - localizacion
 
         ; declaración de edificios
-        centroDeMando1 - edificio
+        centroDeMando1 extractor1 - edificio
 
         ; declaración de unidades
-        VCE1 - unidad
+        VCE1 VCE2 - unidad
     )
     (:init
 
         ; asignar tipo a cada variable
         (tipoEdificio centroDeMando1 centroDeMando)
+        (tipoEdificio extractor1 extractor)
         (tipoUnidad VCE1 VCE)
+        (tipoUnidad VCE2 VCE)
 
         ; Definición del tablero, donde se indican los caminos existentes entre casillas
         (existeCamino loc11 loc12)
@@ -70,18 +72,27 @@
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
+        ; se indica dónde se va a construir el extractor1, para la que se requieren minerales
+        (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
+        (construccionRequiere extractor1 mineral)
+
         ; se situa VCE1 en loc11
         (en VCE1 loc11)
+        (en VCE2 loc11)
 
         ; se situan fuentes de mineral en loc22 y loc23
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
-        (en mineral loc23)
+        (en mineral loc32)
+
+        ; se situa una fuente de gas en loc44
+        (en gas loc44)
+
         
     )
     (:goal
         (and
-            ; el objetivo es generar recursos de tipo mineral
-            (extrayendoRecurso mineral)
+            ; el objetivo es generar recursos de tipo gas
+            (extrayendoRecurso gas)
         )
     )
 )

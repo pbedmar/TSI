@@ -75,7 +75,7 @@
 
         ; se situan fuentes de mineral en loc22 y loc23
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
-        (en mineral loc23)
+        (en mineral loc32)
         
     )
     (:goal
