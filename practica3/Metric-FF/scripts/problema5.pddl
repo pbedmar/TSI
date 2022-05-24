@@ -1,5 +1,5 @@
-(define (problem problema4)
-    (:domain dominio4)
+(define (problem problema5)
+    (:domain dominio5)
     (:objects
         ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
@@ -8,7 +8,7 @@
         loc44 - localizacion
 
         ; declaración de edificios
-        centroDeMando1 extractor1 barracones1 - edificio
+        centroDeMando1 extractor1 barracones1 bahia - edificio
 
         ; declaración de unidades
         VCE1 VCE2 VCE3 - unidad
@@ -32,12 +32,18 @@
         (construccionRequiere barracon mineral)
         (construccionRequiere barracon gas)
         (construccionRequiere extractor mineral)
+        (construccionRequiere bahiaDeIngenieria mineral)
+        (construccionRequiere bahiaDeIngenieria gas)
 
         ; recursos requeridos para generar cada tipo de unidad
         (unidadRequiere VCE mineral)
         (unidadRequiere marine mineral)
         (unidadRequiere soldado mineral)
         (unidadRequiere soldado gas)
+
+        ; recursos requeridos por cada investigación
+        (investigacionRequiere investigarSoldadoUniversal mineral)
+        (investigacionRequiere investigarSoldadoUniversal gas)
 
         ; en que tipo de edificio se genera cada tipo de unidad
         (unidadGeneradaEn VCE centroDeMando)
@@ -98,6 +104,7 @@
         ; localización de edificios
         (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
         (en barracones1 loc33)
+        (en bahiaDeIngenieria loc12) ; TODO: aquí o en objetivos?
         
         ; localizacion de unidades
         (unidadGenerada VCE1)

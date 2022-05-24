@@ -1,4 +1,4 @@
-(define (domain dominio4)
+(define (domain dominio5)
     (:requirements :strips :typing :negative-preconditions) ; TODO: puedo utilizar :negative-preconditions?
     (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -11,6 +11,9 @@
         tUnidad - unidad
         tEdificio - edificio
         tRecurso - recurso
+
+        ; tipo investigación
+        investigacion
     )
 
     (:constants
@@ -18,10 +21,12 @@
         VCE marine soldado - tUnidad
 
         ; los edificios pueden ser de tipo centro de mando, barracon o edificio
-        centroDeMando barracon extractor - tEdificio
+        centroDeMando barracon extractor bahiaDeIngenieria - tEdificio
 
         ; existen dos tipos de recurso, mineral y gas
         mineral gas - tRecurso
+
+        investigarSoldadoUniversal - investigacion ; TODO: es correcto declarar esta investigación como una constante?
     )
 
     (:predicates
@@ -57,6 +62,10 @@
 
         ; indicamos que se ha generado una unidad
         (unidadGenerada ?u - unidad)
+
+        (investigacionRequiere ?i - investigacion ?r - recurso)
+
+        (investigacionCompletada ?i - investigacion)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -209,6 +218,9 @@
                         )
                     )
                 )
+
+                ; 
+                (investigacionCompletada investigarSoldadoUniversal)
             )
         :effect
             (and
@@ -216,6 +228,31 @@
                 (en ?u ?l)
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
+            )
+    )
+
+    (:action Investigar
+        :parameters (?e - edificio ?i - investigacion)
+        :precondition
+            (and
+                (not (investigacionCompletada ?i))
+
+                (edificioConstruido bahiaDeIngenieria)
+
+                ; asegura que se están extrayendo los recursos necesarios para llevar a cabo la investigacion
+                (forall (?tr - tRecurso)
+                    (and
+                        ; si la investigacion requiere algún recurso, debe de estar extrayéndose
+                        (imply (investigacionRequiere ?i ?tr)
+                            (extrayendoRecurso ?tr)
+                        )
+                    )
+                )
+
+            )
+        :effect
+            (and
+                (investigacionCompletada ?i)
             )
     )
 )
