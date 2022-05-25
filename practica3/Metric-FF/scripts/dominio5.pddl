@@ -82,7 +82,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
-                ; (not (extrayendoRecurso ?u)) TODO: sería necesario??
+                (not (unidadTrabajando ?u))
             )
         :effect
             (and
@@ -220,7 +220,9 @@
                 )
 
                 ; 
-                (investigacionCompletada investigarSoldadoUniversal)
+                (imply (tipoUnidad ?u soldado)
+                    (investigacionCompletada investigarSoldadoUniversal)
+                )
             )
         :effect
             (and

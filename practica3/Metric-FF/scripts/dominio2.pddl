@@ -38,7 +38,7 @@
         (extrayendoRecurso ?r - recurso)
 
         ; comprobamos si una unidad está extrayendo un recurso o está libre
-        (unidadTrabajando ?u - unidad) ; TODO: cómo forzar que sea de tipo VCE?
+        (unidadTrabajando ?u - unidad)
 
         ; comprobamos que la unidad es de un tipo concreto
         (tipoUnidad ?u - unidad ?t - tUnidad)
@@ -64,7 +64,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
-                ; (not (extrayendoRecurso ?u)) TODO: sería necesario??
+                (not (unidadTrabajando ?u))
             )
         :effect
             (and
@@ -134,6 +134,14 @@
 
                 ; el edificio requiere un determinado recurso
                 (construccionRequiere ?e ?r)
+
+                ; no puede existir ningún edificio construido en la localización ?l
+                (forall (?e2 - edificio) 
+                    ; si esto no se cumple, el imply es falso
+                    (imply (en ?e2 ?l)
+                        (not (edificioConstruido ?e2))
+                    )
+                )
             )
         :effect
             (and

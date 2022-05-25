@@ -64,7 +64,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
-                ; (not (extrayendoRecurso ?u)) TODO: sería necesario??
+                (not (unidadExtrayendo ?u))
             )
         :effect
             (and

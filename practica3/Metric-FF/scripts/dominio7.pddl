@@ -80,7 +80,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
-                ; (not (extrayendoRecurso ?u)) TODO: sería necesario??
+                (not (unidadTrabajando ?u))
             )
         :effect
             (and
@@ -179,21 +179,27 @@
                 (edificioConstruido ?e)
 
                 (when (tipoUnidad ?u VCE)
-                    (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
 
-                    (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
+                        (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
+                    )
                 )
 
                 (when (tipoUnidad ?u marine)
-                    (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
+                    (and                
+                        (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
 
-                    (decrease (cantidadRecurso gas) (costeUnidad marine gas))
+                        (decrease (cantidadRecurso gas) (costeUnidad marine gas))
+                    )
                 )
 
                 (when (tipoUnidad ?u soldado)
-                    (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
 
-                    (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
+                        (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
+                    )
                 )
             )
     )
@@ -253,15 +259,19 @@
                 (unidadGenerada ?u)
 
                 (when (tipoEdificio ?e barracon)
-                    (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
 
-                    (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
+                        (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
+                    )
                 )
 
                 (when (tipoEdificio ?e extractor)
-                    (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
 
-                    (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
+                        (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
+                    )
                 )
             )
     )
