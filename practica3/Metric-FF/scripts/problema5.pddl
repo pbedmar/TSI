@@ -49,7 +49,7 @@
         (investigacionRequiere investigarSoldadoUniversal mineral)
         (investigacionRequiere investigarSoldadoUniversal gas)
 
-        ; 
+        ; para poder generar un soldado, es necesario haber completado la investigación investigarSoldadoUniversal
         (unidadRequiereInvestigacion soldado investigarSoldadoUniversal)
 
         ; en que tipo de edificio se genera cada tipo de unidad
@@ -104,7 +104,7 @@
         (existeCamino loc44 loc34)
 
 
-        ; se construye centroDeMando 1 en lc11
+        ; se construye centroDeMando1 en lc11
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
@@ -130,6 +130,8 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
+
+            ; la bahía de investigación debe haberse construido
             (edificioConstruido bahia1)
         )
     )

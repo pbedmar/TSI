@@ -73,6 +73,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
+                ; la unidad no debe encontrarse trabajando en otra tarea
                 (not (unidadTrabajando ?u))
             )
         :effect

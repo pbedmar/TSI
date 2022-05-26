@@ -103,7 +103,6 @@
         (and
             ; el objetivo es construir barracones en la localización loc33
             (edificioConstruido barracones1)
-            ; (en barracones1 loc33) TODO: es esto necesario??
         )
     )
 )

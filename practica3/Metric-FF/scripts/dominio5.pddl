@@ -61,10 +61,13 @@
         ; indicamos que se ha generado una unidad
         (unidadGenerada ?u - unidad)
 
+        ; indicamos que una investigación requiere un recurso concreto
         (investigacionRequiere ?i - investigacion ?r - recurso)
 
+        ; indicamos que una investigación ha sido completada
         (investigacionCompletada ?i - investigacion)
 
+        ; para generar una unidad, se necesita una investigación concreta
         (unidadRequiereInvestigacion ?tu - tUnidad ?i - investigacion)
     )
 
@@ -82,6 +85,7 @@
                 ; debe existir un camino entre ambas localizaciones
                 (existeCamino ?origen ?destino)
 
+                ; la unidad no debe encontrarse trabajando en otra tarea
                 (not (unidadTrabajando ?u))
             )
         :effect
@@ -189,7 +193,6 @@
                 ; la unidad a generar no ha debido ser generada anteriormente
                 (not (unidadGenerada ?u))
 
-                ; la unidad debe de ser generada en el edificio que le corresponde según su tipo
                 (exists (?tu - tUnidad)
                     (and
                         ; extraemos el tipo de la unidad
@@ -202,7 +205,8 @@
                                 (unidadGeneradaEn ?tu ?te)
                             )
                         )
-
+                        
+                        ; comprobamos que para este tipo de unidad todas las investigaciones necesarias han sido completadas
                         (forall (?i - investigacion)
                             (imply (unidadRequiereInvestigacion ?tu ?i)
                                 (investigacionCompletada ?i)
@@ -224,8 +228,6 @@
                         )
                     )
                 )
-
-                ;
                 
             )
         :effect
@@ -241,10 +243,13 @@
         :parameters (?e - edificio ?i - investigacion)
         :precondition
             (and
+                ; no se ha llevado a cabo aún la investigación
                 (not (investigacionCompletada ?i))
 
+                ; el edificio necesario para investigar ha sido construido
                 (edificioConstruido ?e)
 
+                ; el edificio se corresponde con la bahía de ingeniería
                 (tipoEdificio ?e bahiaDeIngenieria)
 
                 ; asegura que se están extrayendo los recursos necesarios para llevar a cabo la investigacion
@@ -260,6 +265,7 @@
             )
         :effect
             (and
+                ; se ha completado la investigación
                 (investigacionCompletada ?i)
             )
     )
