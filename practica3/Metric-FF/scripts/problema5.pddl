@@ -8,12 +8,15 @@
         loc44 - localizacion
 
         ; declaración de edificios
-        centroDeMando1 extractor1 barracones1 bahia - edificio
+        centroDeMando1 extractor1 barracones1 bahia1 - edificio
 
         ; declaración de unidades
         VCE1 VCE2 VCE3 - unidad
         marine1 marine2 - unidad
         soldado1 - unidad
+
+        ; declaracion de investigaciones
+        investigarSoldadoUniversal - investigacion
     )
     (:init
 
@@ -21,6 +24,7 @@
         (tipoEdificio centroDeMando1 centroDeMando)
         (tipoEdificio extractor1 extractor)
         (tipoEdificio barracones1 barracon)
+        (tipoEdificio bahia1 bahiaDeIngenieria)
         (tipoUnidad VCE1 VCE)
         (tipoUnidad VCE2 VCE)
         (tipoUnidad VCE3 VCE)
@@ -44,6 +48,9 @@
         ; recursos requeridos por cada investigación
         (investigacionRequiere investigarSoldadoUniversal mineral)
         (investigacionRequiere investigarSoldadoUniversal gas)
+
+        ; 
+        (unidadRequiereInvestigacion soldado investigarSoldadoUniversal)
 
         ; en que tipo de edificio se genera cada tipo de unidad
         (unidadGeneradaEn VCE centroDeMando)
@@ -104,7 +111,7 @@
         ; localización de edificios
         (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
         (en barracones1 loc33)
-        (en bahiaDeIngenieria loc12) ; TODO: aquí o en objetivos?
+        (en bahia1 loc12) ; TODO: aquí o en objetivos?
         
         ; localizacion de unidades
         (unidadGenerada VCE1)
@@ -123,6 +130,7 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
+            (edificioConstruido bahia1)
         )
     )
 )

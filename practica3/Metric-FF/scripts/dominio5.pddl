@@ -25,8 +25,6 @@
 
         ; existen dos tipos de recurso, mineral y gas
         mineral gas - tRecurso
-
-        investigarSoldadoUniversal - investigacion ; TODO: es correcto declarar esta investigación como una constante?
     )
 
     (:predicates
@@ -66,6 +64,8 @@
         (investigacionRequiere ?i - investigacion ?r - recurso)
 
         (investigacionCompletada ?i - investigacion)
+
+        (unidadRequiereInvestigacion ?tu - tUnidad ?i - investigacion)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -202,6 +202,12 @@
                                 (unidadGeneradaEn ?tu ?te)
                             )
                         )
+
+                        (forall (?i - investigacion)
+                            (imply (unidadRequiereInvestigacion ?tu ?i)
+                                (investigacionCompletada ?i)
+                            )
+                        )
                     )
                 )
 
@@ -219,10 +225,8 @@
                     )
                 )
 
-                ; 
-                (imply (tipoUnidad ?u soldado)
-                    (investigacionCompletada investigarSoldadoUniversal)
-                )
+                ;
+                
             )
         :effect
             (and
@@ -239,7 +243,9 @@
             (and
                 (not (investigacionCompletada ?i))
 
-                (edificioConstruido bahiaDeIngenieria)
+                (edificioConstruido ?e)
+
+                (tipoEdificio ?e bahiaDeIngenieria)
 
                 ; asegura que se están extrayendo los recursos necesarios para llevar a cabo la investigacion
                 (forall (?tr - tRecurso)
