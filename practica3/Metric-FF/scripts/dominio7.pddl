@@ -178,27 +178,19 @@
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
 
-                (when (tipoUnidad ?u VCE)
+                (when (tipoEdificio ?e barracon)
                     (and
-                        (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
+                        (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
 
-                        (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
+                        (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
                     )
                 )
 
-                (when (tipoUnidad ?u marine)
-                    (and                
-                        (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
-
-                        (decrease (cantidadRecurso gas) (costeUnidad marine gas))
-                    )
-                )
-
-                (when (tipoUnidad ?u soldado)
+                (when (tipoEdificio ?e extractor)
                     (and
-                        (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
+                        (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
 
-                        (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
+                        (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
                     )
                 )
             )
@@ -258,19 +250,27 @@
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
 
-                (when (tipoEdificio ?e barracon)
+                (when (tipoUnidad ?u VCE)
                     (and
-                        (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
+                        (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
 
-                        (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
+                        (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
                     )
                 )
 
-                (when (tipoEdificio ?e extractor)
-                    (and
-                        (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
+                (when (tipoUnidad ?u marine)
+                    (and                
+                        (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
 
-                        (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
+                        (decrease (cantidadRecurso gas) (costeUnidad marine gas))
+                    )
+                )
+
+                (when (tipoUnidad ?u soldado)
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
+
+                        (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
                     )
                 )
             )

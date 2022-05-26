@@ -36,6 +36,7 @@
         ; recursos requeridos para generar cada tipo de unidad
         (unidadRequiere VCE mineral)
         (unidadRequiere marine mineral)
+        (unidadRequiere marine gas)
         (unidadRequiere soldado mineral)
         (unidadRequiere soldado gas)
 
@@ -97,7 +98,7 @@
 
         ; localización de edificios
         (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-        (en barracones1 loc33)
+        (en barracones1 loc32)
         
         ; localizacion de unidades
         (unidadGenerada VCE1)
@@ -133,6 +134,7 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
+            (edificioConstruido barracones1)
         )
     )
 )
