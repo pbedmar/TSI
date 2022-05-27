@@ -189,6 +189,8 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
+                
+                ; el edificio debe estar en una determinada posicion
                 (en ?e ?l)
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
