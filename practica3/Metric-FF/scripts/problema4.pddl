@@ -116,9 +116,9 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
-            
+
             ; localización de barracones1
-            (en barracones1 loc33)
+            (en barracones1 loc32)
         )
     )
 )

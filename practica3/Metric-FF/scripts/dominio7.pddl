@@ -10,7 +10,7 @@
         ; tipos de cada entidad
         tUnidad - unidad
         tEdificio - edificio
-        recurso
+        tRecurso - recurso
     )
 
     (:constants
@@ -21,7 +21,7 @@
         centroDeMando barracon extractor - tEdificio
 
         ; existen dos tipos de recurso, mineral y gas
-        mineral gas - recurso
+        mineral gas - tRecurso
     )
 
     (:predicates
@@ -64,6 +64,9 @@
         (cantidadVCEAsig ?l)
         (costeEdificio ?te - tEdificio ?r - recurso)
         (costeUnidad ?tu - tUnidad ?r - recurso)
+
+        ; buscamos minimizar el valor de esta funcion
+        (costeDelPlan)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -88,6 +91,9 @@
                 ; la unidad pasa de encontrarse en la posición de origen a la posición de destino
                 (not (en ?u ?origen))
                 (en ?u ?destino)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -128,6 +134,9 @@
                 (extrayendoRecurso ?r)
 
                 (increase (cantidadVCEAsig ?l) 1)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -139,11 +148,11 @@
                 ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
 
-                ; el edificio debe estar planificado en una determinada posicion de antemano 
-                (en ?e ?l)
-
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
+
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
 
                 ; este exists se utiliza para enlazar el edificio a construir con su tipo
                 (exists (?te - tEdificio)
@@ -156,7 +165,7 @@
                                 (and
                                     (extrayendoRecurso ?tr)
 
-                                    (>= (cantidadRecurso ?r) (costeEdificio ?te ?r))
+                                    (>= (cantidadRecurso ?tr) (costeEdificio ?te ?tr))
                                 )
                             )
                         )
@@ -180,6 +189,9 @@
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
 
+                ; el edificio debe estar en una determinada posicion
+                (en ?e ?l)
+
                 (when (tipoEdificio ?e barracon)
                     (and
                         (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
@@ -195,6 +207,9 @@
                         (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
                     )
                 )
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -227,18 +242,19 @@
                     )
                 )
 
-                ; asegura que se están extrayendo los recursos necesarios para generar la unidad
-                (forall (?r - recurso)
-                    (exists (?tu - tUnidad)
-                        (and
-                            ; extraemos el tipo de unidad
-                            (tipoUnidad ?u ?tu)
-                            ; si su generación requiere algún recurso, debe de estar extrayéndose
-                            (imply (unidadRequiere ?tu ?r)
-                                (and
-                                    (extrayendoRecurso ?r)
 
-                                    (>= (cantidadRecurso ?r) (costeUnidad ?tu ?r))
+                ; asegura que se están extrayendo los recursos necesarios para generar la unidad
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de unidad
+                        (tipoUnidad ?u ?tu)
+                        ; si su generación requiere algún recurso, debe de estar extrayéndose
+                        (forall (?tr - tRecurso)
+                            (imply (unidadRequiere ?tu ?tr)
+                                (and
+                                    (extrayendoRecurso ?tr)
+
+                                    (>= (cantidadRecurso ?tr) (costeUnidad ?tu ?tr))
                                 )
                             )
                         )
@@ -275,6 +291,9 @@
                         (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
                     )
                 )
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -301,7 +320,8 @@
             (and
                 (increase (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l)))
 
-
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 )

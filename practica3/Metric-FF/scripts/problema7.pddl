@@ -95,10 +95,6 @@
         ; se construye centroDeMando 1 en lc11
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
-
-        ; localización de edificios
-        (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-        (en barracones1 loc32)
         
         ; localizacion de unidades
         (unidadGenerada VCE1)
@@ -108,6 +104,8 @@
         (en mineral loc22) ; TODO: Cómo prevenir que en una misma localización no haya más de un recurso?
         (en mineral loc32)
         (en gas loc44)
+
+
         (= (cantidadVCEAsig loc22) 0)
         (= (cantidadVCEAsig loc32) 0)
         (= (cantidadVCEAsig loc44) 0)
@@ -126,7 +124,9 @@
         (= (costeUnidad marine gas) 15)
         (= (costeUnidad soldado mineral) 30)
         (= (costeUnidad soldado gas) 30)
-        
+
+        ; el coste del plan inicialmente es 0
+        (= (costeDelPlan) 0)
     )
     (:goal
         (and
@@ -134,7 +134,11 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
-            (edificioConstruido barracones1)
+            
+            ; localización de barracones1
+            (en barracones1 loc32)
+
+            (< (costeDelPlan) 42)
         )
     )
 )

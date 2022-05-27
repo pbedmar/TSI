@@ -133,7 +133,7 @@
             ; localizacion de bahia1
             (en bahia1 loc12)
 
-            ; el coste del plan debe de ser menor que 25, o sea, la última acción tiene un índice con valor 24. este es el minimo coste que hemos encontrado que safisface el problema
+            ; el coste del plan debe de ser menor que 25, o sea, 24. este es el minimo coste que hemos encontrado que safisface el problema
             (< (costeDelPlan) 25)
         )
     )
