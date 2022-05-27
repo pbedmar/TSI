@@ -136,6 +136,9 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
+
                 ; se recorren todos los tipos de recurso existentes 
                 (forall (?tr - tRecurso)
                     ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.

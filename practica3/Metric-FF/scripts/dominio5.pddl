@@ -148,6 +148,9 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
+
                 ; este exists se utiliza para enlazar el edificio a construir con su tipo
                 (exists (?te - tEdificio)
                     (and

@@ -127,6 +127,9 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
+
                 ; el recurso a utilizar debe estar extrayéndose
                 (extrayendoRecurso ?r)
 
