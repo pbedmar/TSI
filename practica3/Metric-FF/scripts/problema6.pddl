@@ -107,11 +107,6 @@
         ; se construye centroDeMando1 en lc11
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
-
-        ; localización de edificios
-        (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-        (en barracones1 loc33)
-        (en bahia1 loc12) ; TODO: aquí o en objetivos?
         
         ; localizacion de unidades
         (unidadGenerada VCE1)
@@ -128,15 +123,18 @@
     (:goal
         (and
             ; los marines y el soldado deben encontrarse en las posiciones indicadas
-            (en marine1 loc31)
-            (en marine2 loc24)
-            (en soldado1 loc12)
+            (en marine1 loc14)
+            (en marine2 loc14)
+            (en soldado1 loc14)
 
-            ; la bahía de investigación debe haberse construido
-            (edificioConstruido bahia1)
+            ; localización de barracones1
+            (en barracones1 loc14)
+        
+            ; localizacion de bahia1
+            (en bahia1 loc12)
 
             ; el coste del plan debe de ser menor que 27, o sea, 26. este es el minimo coste que hemos encontrado que safisface el problema
-            (< (costeDelPlan) 27)
+            (< (costeDelPlan) 28)
         )
     )
 )

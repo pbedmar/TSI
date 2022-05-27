@@ -130,21 +130,19 @@
                 ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
 
-                ; el edificio debe estar planificado en una determinada posicion de antemano 
-                (en ?e ?l)
-
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
                 ; la unidad constructora debe ser de tipo VCE
                 (tipoUnidad ?u VCE)
 
-                ; se recorren todos los tipos de recurso existentes 
-                (forall (?tr - tRecurso)
-                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
-                    (exists (?te - tEdificio)
-                        (and
-                            (tipoEdificio ?e ?te)
+                ; este exists se utiliza para enlazar el edificio a construir con su tipo
+                (exists (?te - tEdificio)
+                    (and
+                        (tipoEdificio ?e ?te)
+                        ; se recorren todos los tipos de recurso existentes 
+                        (forall (?tr - tRecurso)
+                            ; si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose
                             (imply (construccionRequiere ?te ?tr)
                                 (extrayendoRecurso ?tr)
                             )
@@ -168,6 +166,9 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
+
+                ; el edificio debe estar en una determinada posicion
+                (en ?e ?l)
             )
     )
 
@@ -201,12 +202,12 @@
                 )
 
                 ; asegura que se están extrayendo los recursos necesarios para generar la unidad
-                (forall (?tr - tRecurso)
-                    (exists (?tu - tUnidad)
-                        (and
-                            ; extraemos el tipo de unidad
-                            (tipoUnidad ?u ?tu)
-                            ; si su generación requiere algún recurso, debe de estar extrayéndose
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de unidad
+                        (tipoUnidad ?u ?tu)
+                        ; si su generación requiere algún recurso, debe de estar extrayéndose
+                        (forall (?tr - tRecurso)
                             (imply (unidadRequiere ?tu ?tr)
                                 (extrayendoRecurso ?tr)
                             )

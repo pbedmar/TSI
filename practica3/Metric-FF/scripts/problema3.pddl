@@ -79,12 +79,6 @@
         (edificioConstruido centroDeMando1)
         (en centroDeMando1 loc11)
 
-        ; localización de extractor1
-        (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-
-        ; localización de barracones1
-        (en barracones1 loc33)
-        
         ; se situa VCE1 en loc11
         (en VCE1 loc11)
         (en VCE2 loc11)
@@ -103,6 +97,9 @@
         (and
             ; el objetivo es construir barracones en la localización loc33
             (edificioConstruido barracones1)
+            
+            ; localización de barracones1
+            (en barracones1 loc33)
         )
     )
 )

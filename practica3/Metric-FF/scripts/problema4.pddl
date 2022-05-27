@@ -96,8 +96,8 @@
         (en centroDeMando1 loc11)
 
         ; localización de edificios
-        (en extractor1 loc44) ;TODO: puedo referenciar explicitamenre la posicion del extractor?
-        (en barracones1 loc33)
+         ;TODO: puedo referenciar explicitamenre la posicion del extractor?
+
         
         ; localizacion de unidades
         (unidadGenerada VCE1)
@@ -116,6 +116,9 @@
             (en marine1 loc31)
             (en marine2 loc24)
             (en soldado1 loc12)
+            
+            ; localización de barracones1
+            (en barracones1 loc33)
         )
     )
 )

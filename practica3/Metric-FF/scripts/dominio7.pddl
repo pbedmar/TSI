@@ -145,15 +145,16 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
-                ; se recorren todos los tipos de recurso existentes 
-                (forall (?r - recurso)
-                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
-                    (exists (?te - tEdificio)
-                        (and
-                            (tipoEdificio ?e ?te)
-                            (imply (construccionRequiere ?te ?r)
+                ; este exists se utiliza para enlazar el edificio a construir con su tipo
+                (exists (?te - tEdificio)
+                    (and
+                        (tipoEdificio ?e ?te)
+                        ; se recorren todos los tipos de recurso existentes 
+                        (forall (?tr - tRecurso)
+                            ; si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose
+                            (imply (construccionRequiere ?te ?tr)
                                 (and
-                                    (extrayendoRecurso ?r)
+                                    (extrayendoRecurso ?tr)
 
                                     (>= (cantidadRecurso ?r) (costeEdificio ?te ?r))
                                 )

@@ -142,9 +142,6 @@
                 ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
 
-                ; el edificio debe estar planificado en una determinada posicion de antemano 
-                (en ?e ?l)
-
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
@@ -181,6 +178,9 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
+
+                ; el edificio debe estar en una determinada posicion
+                (en ?e ?l)
             )
     )
 
