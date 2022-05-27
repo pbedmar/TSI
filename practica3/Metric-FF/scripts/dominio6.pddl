@@ -1,4 +1,4 @@
-(define (domain dominio5)
+(define (domain dominio6)
     (:requirements :strips :typing :negative-preconditions) ; TODO: puedo utilizar :negative-preconditions?
     (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -71,6 +71,11 @@
         (unidadRequiereInvestigacion ?tu - tUnidad ?i - investigacion)
     )
 
+    (:functions
+        ; buscamos minimizar el valor de esta funcion
+        (costeDelPlan)
+    )
+
     ; permite desplazar una unidad entre dos localizaciones
     (:action Navegar
         :parameters (?u - unidad ?origen - localizacion ?destino - localizacion)
@@ -93,6 +98,9 @@
                 ; la unidad pasa de encontrarse en la posición de origen a la posición de destino
                 (not (en ?u ?origen))
                 (en ?u ?destino)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -131,6 +139,9 @@
 
                 ; indicamos que el recurso del tipo indicado está siendo extraído
                 (extrayendoRecurso ?r)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -142,18 +153,19 @@
                 ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
 
-                ; el edificio debe estar planificado en una determinada posicion de antemano 
-                (en ?e ?l)
-
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
-                ; se recorren todos los tipos de recurso existentes 
-                (forall (?tr - tRecurso)
-                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
-                    (exists (?te - tEdificio)
-                        (and
-                            (tipoEdificio ?e ?te)
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
+
+                ; este exists se utiliza para enlazar el edificio a construir con su tipo
+                (exists (?te - tEdificio)
+                    (and
+                        (tipoEdificio ?e ?te)
+                        ; se recorren todos los tipos de recurso existentes 
+                        (forall (?tr - tRecurso)
+                            ; si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose
                             (imply (construccionRequiere ?te ?tr)
                                 (extrayendoRecurso ?tr)
                             )
@@ -177,6 +189,11 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
+                (en ?e ?l)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
+                
             )
     )
 
@@ -216,12 +233,12 @@
                 )
 
                 ; asegura que se están extrayendo los recursos necesarios para generar la unidad
-                (forall (?tr - tRecurso)
-                    (exists (?tu - tUnidad)
-                        (and
-                            ; extraemos el tipo de unidad
-                            (tipoUnidad ?u ?tu)
-                            ; si su generación requiere algún recurso, debe de estar extrayéndose
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de unidad
+                        (tipoUnidad ?u ?tu)
+                        ; si su generación requiere algún recurso, debe de estar extrayéndose
+                        (forall (?tr - tRecurso)
                             (imply (unidadRequiere ?tu ?tr)
                                 (extrayendoRecurso ?tr)
                             )
@@ -234,8 +251,12 @@
             (and
                 ; se ha reclutado la unidad en la localización del edificio generador
                 (en ?u ?l)
+
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -267,6 +288,9 @@
             (and
                 ; se ha completado la investigación
                 (investigacionCompletada ?i)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 )

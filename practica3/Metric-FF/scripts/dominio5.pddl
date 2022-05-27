@@ -148,12 +148,13 @@
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
-                ; se recorren todos los tipos de recurso existentes 
-                (forall (?tr - tRecurso)
-                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
-                    (exists (?te - tEdificio)
-                        (and
-                            (tipoEdificio ?e ?te)
+                ; este exists se utiliza para enlazar el edificio a construir con su tipo
+                (exists (?te - tEdificio)
+                    (and
+                        (tipoEdificio ?e ?te)
+                        ; se recorren todos los tipos de recurso existentes 
+                        (forall (?tr - tRecurso)
+                            ; si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose
                             (imply (construccionRequiere ?te ?tr)
                                 (extrayendoRecurso ?tr)
                             )
@@ -216,12 +217,12 @@
                 )
 
                 ; asegura que se están extrayendo los recursos necesarios para generar la unidad
-                (forall (?tr - tRecurso)
-                    (exists (?tu - tUnidad)
-                        (and
-                            ; extraemos el tipo de unidad
-                            (tipoUnidad ?u ?tu)
-                            ; si su generación requiere algún recurso, debe de estar extrayéndose
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de unidad
+                        (tipoUnidad ?u ?tu)
+                        ; si su generación requiere algún recurso, debe de estar extrayéndose
+                        (forall (?tr - tRecurso)
                             (imply (unidadRequiere ?tu ?tr)
                                 (extrayendoRecurso ?tr)
                             )

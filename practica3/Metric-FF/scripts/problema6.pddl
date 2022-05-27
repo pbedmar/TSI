@@ -1,5 +1,5 @@
-(define (problem problema5)
-    (:domain dominio5)
+(define (problem problema6)
+    (:domain dominio6)
     (:objects
         ; declarar las casillas del grid
         loc11 loc12 loc13 loc14 - localizacion
@@ -122,7 +122,8 @@
         (en mineral loc32)
         (en gas loc44)
 
-        
+        ; el coste del plan inicialmente es 0
+        (= (costeDelPlan) 0)
     )
     (:goal
         (and
@@ -133,6 +134,9 @@
 
             ; la bahía de investigación debe haberse construido
             (edificioConstruido bahia1)
+
+            ; el coste del plan debe de ser menor que 27, o sea, 26. este es el minimo coste que hemos encontrado que safisface el problema
+            (< (costeDelPlan) 27)
         )
     )
 )
