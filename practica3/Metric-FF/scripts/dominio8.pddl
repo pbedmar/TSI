@@ -1,6 +1,6 @@
 (define (domain dominio7)
-    (:requirements :strips :typing :negative-preconditions :fluents) ; TODO: puedo utilizar :negative-preconditions?
-    (:types ; TODO: los nombres de los tipos deben ser exactamente iguales que los del guión?
+    (:requirements :strips :typing :negative-preconditions :fluents)
+    (:types
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
         unidad edificio recurso - entidad
 
@@ -10,7 +10,7 @@
         ; tipos de cada entidad
         tUnidad - unidad
         tEdificio - edificio
-        recurso
+        tRecurso - recurso
     )
 
     (:constants
@@ -21,7 +21,7 @@
         centroDeMando barracon extractor - tEdificio
 
         ; existen dos tipos de recurso, mineral y gas
-        mineral gas - recurso
+        mineral gas - tRecurso
     )
 
     (:predicates
@@ -60,10 +60,20 @@
     )
 
     (:functions
+        ; almacenar la cantidad de unidades de cada recurso
         (cantidadRecurso ?r - recurso)
+
+        ; almacenar la cantidad de VCEs asignados en una localizacion
         (cantidadVCEAsig ?l)
+
+        ; guardar el número de unidades necesarias de un recurso concreto para construir un tipo de edificio
         (costeEdificio ?te - tEdificio ?r - recurso)
+
+        ; guardar el número de unidades necesarias de un recurso concreto para generar un tipo de unidad
         (costeUnidad ?tu - tUnidad ?r - recurso)
+
+        ; buscamos minimizar el valor de esta funcion
+        (costeDelPlan)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -88,6 +98,9 @@
                 ; la unidad pasa de encontrarse en la posición de origen a la posición de destino
                 (not (en ?u ?origen))
                 (en ?u ?destino)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -127,7 +140,11 @@
                 ; indicamos que el recurso del tipo indicado está siendo extraído
                 (extrayendoRecurso ?r)
 
+                ; aumentar en uno la cantidad de VCE asignados en una localización
                 (increase (cantidadVCEAsig ?l) 1)
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -139,23 +156,25 @@
                 ; la unidad debe estar en la localizacion donde se va a construir
                 (en ?u ?l)
 
-                ; el edificio debe estar planificado en una determinada posicion de antemano 
-                (en ?e ?l)
-
                 ; debe existir una unidad libre
                 (not (unidadTrabajando ?u))
 
-                ; se recorren todos los tipos de recurso existentes 
-                (forall (?r - recurso)
-                    ; este exists se utiliza para enlazar el edificio a construir con su tipo. si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose.
-                    (exists (?te - tEdificio)
-                        (and
-                            (tipoEdificio ?e ?te)
-                            (imply (construccionRequiere ?te ?r)
-                                (and
-                                    (extrayendoRecurso ?r)
+                ; la unidad constructora debe ser de tipo VCE
+                (tipoUnidad ?u VCE)
 
-                                    (>= (cantidadRecurso ?r) (costeEdificio ?te ?r))
+                ; este exists se utiliza para enlazar el edificio a construir con su tipo
+                (exists (?te - tEdificio)
+                    (and
+                        (tipoEdificio ?e ?te)
+                        ; se recorren todos los tipos de recurso existentes 
+                        (forall (?tr - tRecurso)
+                            ; si la construcción de ese tipo de edificio requiere el recurso
+                            (imply (construccionRequiere ?te ?tr)
+                                (and
+                                    ; este debe de estar extrayéndose
+                                    (extrayendoRecurso ?tr)
+                                    ; la cantidad de recurso debe ser mayor que el coste
+                                    (>= (cantidadRecurso ?tr) (costeEdificio ?te ?tr))
                                 )
                             )
                         )
@@ -179,6 +198,10 @@
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
 
+                ; el edificio debe estar en una determinada posicion
+                (en ?e ?l)
+
+                ; si el edificio es de tipo barracon, reducimos el stock de los minerales y gases que necesita
                 (when (tipoEdificio ?e barracon)
                     (and
                         (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
@@ -187,6 +210,7 @@
                     )
                 )
 
+                ; si el edificio es de tipo extractor, reducimos el stock de los minerales y gases que necesita
                 (when (tipoEdificio ?e extractor)
                     (and
                         (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
@@ -194,6 +218,9 @@
                         (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
                     )
                 )
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -226,18 +253,20 @@
                     )
                 )
 
-                ; asegura que se están extrayendo los recursos necesarios para generar la unidad
-                (forall (?r - recurso)
-                    (exists (?tu - tUnidad)
-                        (and
-                            ; extraemos el tipo de unidad
-                            (tipoUnidad ?u ?tu)
-                            ; si su generación requiere algún recurso, debe de estar extrayéndose
-                            (imply (unidadRequiere ?tu ?r)
-                                (and
-                                    (extrayendoRecurso ?r)
 
-                                    (>= (cantidadRecurso ?r) (costeUnidad ?tu ?r))
+                ; asegura que se están extrayendo los recursos necesarios para generar la unidad
+                (exists (?tu - tUnidad)
+                    (and
+                        ; extraemos el tipo de unidad
+                        (tipoUnidad ?u ?tu)
+                        ; si su generación requiere algún recurso
+                        (forall (?tr - tRecurso)
+                            (imply (unidadRequiere ?tu ?tr)
+                                (and
+                                    ; debe de estar extrayéndose
+                                    (extrayendoRecurso ?tr)
+                                    ; la cantidad de recurso disponible debe ser mayor o igual que lo que se necesita para generar la unidad
+                                    (>= (cantidadRecurso ?tr) (costeUnidad ?tu ?tr))
                                 )
                             )
                         )
@@ -251,6 +280,7 @@
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
 
+                ; si la unidad es de tipo VCE, reducimos el stock de los minerales y gases que necesita
                 (when (tipoUnidad ?u VCE)
                     (and
                         (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
@@ -258,7 +288,8 @@
                         (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
                     )
                 )
-
+                
+                ; si la unidad es de tipo marine, reducimos el stock de los minerales y gases que necesita
                 (when (tipoUnidad ?u marine)
                     (and                
                         (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
@@ -266,7 +297,8 @@
                         (decrease (cantidadRecurso gas) (costeUnidad marine gas))
                     )
                 )
-
+                
+                ; si la unidad es de tipo soldado, reducimos el stock de los minerales y gases que necesita
                 (when (tipoUnidad ?u soldado)
                     (and
                         (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
@@ -274,6 +306,9 @@
                         (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
                     )
                 )
+
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 
@@ -281,26 +316,25 @@
         :parameters (?r - recurso ?l - localizacion)
         :precondition
             (and
+                ; el recurso está en la localización indicada
                 (en ?r ?l)
 
+                ; se está extrayendo el recurso
                 (extrayendoRecurso ?r)
 
+                ; al recolectar el recurso, su stock no va a superar las 60 unidades
                 (>= 60 (+ (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l))))
 
+                ; el número de VCEs asignados en la localización va a ser mayor a 0
                 (< 0 (cantidadVCEAsig ?l))
-
-                (exists (?u - unidad)
-                    (and
-                        (tipoUnidad ?u VCE)
-                        (unidadTrabajando ?u)
-                    )
-                )
             )
         :effect
             (and
+                ; aumenta el stock del recurso según el número de VCEs asignados
                 (increase (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l)))
 
-
+                ; al realizar la acción, se incrementa el coste del plan en 1
+                (increase (costeDelPlan) 1)
             )
     )
 )
