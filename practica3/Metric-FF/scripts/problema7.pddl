@@ -105,19 +105,22 @@
         (en mineral loc32)
         (en gas loc44)
 
-
+        ; la cantidad inicial de VCEs asignados a los recursos es 0
         (= (cantidadVCEAsig loc22) 0)
         (= (cantidadVCEAsig loc32) 0)
         (= (cantidadVCEAsig loc44) 0)
-
+        
+        ; al inicio de la ejecución el stock de todos los recursos está vacío
         (= (cantidadRecurso mineral) 0)
         (= (cantidadRecurso gas) 0)
 
+        ; definición de la cantidad de recurso necesaria para construir un tipo de edificio dado
         (= (costeEdificio barracon mineral) 30)
         (= (costeEdificio barracon gas) 10)
         (= (costeEdificio extractor mineral) 10)
         (= (costeEdificio extractor gas) 0)
 
+        ; definición de la cantidad de recurso necesaria para generar un tipo de unidad dada
         (= (costeUnidad VCE mineral) 5)
         (= (costeUnidad VCE gas) 0)
         (= (costeUnidad marine mineral) 10)
@@ -138,7 +141,8 @@
             ; localización de barracones1
             (en barracones1 loc32)
 
-            (< (costeDelPlan) 42)
+            ; el coste del plan debe de ser una unidad menor que 45, o sea, 44. este es el minimo coste que hemos encontrado que safisface el problema
+            (< (costeDelPlan) 45)
         )
     )
 )

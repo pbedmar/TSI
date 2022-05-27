@@ -1,4 +1,4 @@
-(define (domain dominio7)
+(define (domain dominio8)
     (:requirements :strips :typing :negative-preconditions :fluents)
     (:types
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
@@ -38,7 +38,7 @@
         (extrayendoRecurso ?r - recurso)
 
         ; comprobamos si una unidad está extrayendo un recurso o está libre
-        (unidadTrabajando ?u - unidad) ; TODO: cómo forzar que sea de tipo VCE?
+        (unidadTrabajando ?u - unidad) 
 
         ; comprobamos que la unidad es de un tipo concreto
         (tipoUnidad ?u - unidad ?t - tUnidad)
@@ -74,6 +74,9 @@
 
         ; buscamos minimizar el valor de esta funcion
         (costeDelPlan)
+
+        ;
+        (tiempoRealizacion)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -101,6 +104,21 @@
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el VCE
+                (when (tipoUnidad ?u VCE)
+                    (increase (tiempoRealizacion) 20)
+                )
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el marine
+                (when (tipoUnidad ?u marine)
+                    (increase (tiempoRealizacion) 4)
+                )
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el soldado
+                (when (tipoUnidad ?u soldado)
+                    (increase (tiempoRealizacion) 1)
+                )
             )
     )
 
@@ -201,21 +219,25 @@
                 ; el edificio debe estar en una determinada posicion
                 (en ?e ?l)
 
-                ; si el edificio es de tipo barracon, reducimos el stock de los minerales y gases que necesita
+                ; si el edificio es de tipo barracon, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
                 (when (tipoEdificio ?e barracon)
                     (and
                         (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
 
                         (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
+
+                        (increase (tiempoRealizacion) 50)
                     )
                 )
 
-                ; si el edificio es de tipo extractor, reducimos el stock de los minerales y gases que necesita
+                ; si el edificio es de tipo extractor, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
                 (when (tipoEdificio ?e extractor)
                     (and
                         (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
 
                         (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
+
+                        (increase (tiempoRealizacion) 30)
                     )
                 )
 
@@ -280,30 +302,36 @@
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
 
-                ; si la unidad es de tipo VCE, reducimos el stock de los minerales y gases que necesita
+                ; si la unidad es de tipo VCE, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
                 (when (tipoUnidad ?u VCE)
                     (and
                         (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
 
                         (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
+
+                        (increase (tiempoRealizacion) 10)
                     )
                 )
                 
-                ; si la unidad es de tipo marine, reducimos el stock de los minerales y gases que necesita
+                ; si la unidad es de tipo marine, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
                 (when (tipoUnidad ?u marine)
                     (and                
                         (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
 
                         (decrease (cantidadRecurso gas) (costeUnidad marine gas))
+
+                        (increase (tiempoRealizacion) 20)
                     )
                 )
                 
-                ; si la unidad es de tipo soldado, reducimos el stock de los minerales y gases que necesita
+                ; si la unidad es de tipo soldado, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
                 (when (tipoUnidad ?u soldado)
                     (and
                         (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
 
                         (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
+
+                        (increase (tiempoRealizacion) 30)
                     )
                 )
 
@@ -335,6 +363,9 @@
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
+
+                ; se incrementa el tiempo que tarda el plan en la cantidad especificada en el guion
+                (increase (tiempoRealizacion) 5)
             )
     )
 )
