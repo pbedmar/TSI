@@ -128,8 +128,6 @@
         (= (costeUnidad soldado mineral) 30)
         (= (costeUnidad soldado gas) 30)
 
-        ; el coste del plan inicialmente es 0
-        (= (costeDelPlan) 0)
     )
     (:goal
         (and
@@ -140,9 +138,6 @@
             
             ; localización de barracones1
             (en barracones1 loc32)
-
-            ; el coste del plan debe de ser una unidad menor que 45, o sea, 44. este es el minimo coste que hemos encontrado que safisface el problema
-            (< (costeDelPlan) 45)
         )
     )
 )

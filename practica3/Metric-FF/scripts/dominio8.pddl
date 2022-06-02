@@ -75,7 +75,7 @@
         ; buscamos minimizar el valor de esta funcion
         (costeDelPlan)
 
-        ;
+        ; medida del tiempo que tardan las acciones
         (tiempoRealizacion)
     )
 
@@ -167,7 +167,7 @@
     )
 
     ; una unidad construye un edificio en una determinada localizacion, utilizando un recurso concreto
-    (:action Construir
+    (:action CONSTRUIREDIFICIO
         :parameters (?u - unidad ?e - edificio ?l - localizacion)
         :precondition
             (and

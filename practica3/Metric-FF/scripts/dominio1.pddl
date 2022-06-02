@@ -65,7 +65,7 @@
                 (existeCamino ?origen ?destino)
 
                 ; la unidad no debe encontrarse trabajando en otra tarea
-                (not (unidadTrabajando ?u))
+                (not (unidadExtrayendo ?u))
             )
         :effect
             (and

@@ -73,7 +73,7 @@
         (costeUnidad ?tu - tUnidad ?r - recurso)
 
         ; buscamos minimizar el valor de esta funcion
-        (costeDelPlan)
+        ; (costeDelPlan)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -100,7 +100,7 @@
                 (en ?u ?destino)
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
-                (increase (costeDelPlan) 1)
+                ; (increase (costeDelPlan) 1)
             )
     )
 
@@ -144,7 +144,7 @@
                 (increase (cantidadVCEAsig ?l) 1)
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
-                (increase (costeDelPlan) 1)
+                ; (increase (costeDelPlan) 1)
             )
     )
 
@@ -220,7 +220,7 @@
                 )
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
-                (increase (costeDelPlan) 1)
+                ; (increase (costeDelPlan) 1)
             )
     )
 
@@ -308,7 +308,7 @@
                 )
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
-                (increase (costeDelPlan) 1)
+                ; (increase (costeDelPlan) 1)
             )
     )
 
@@ -334,7 +334,7 @@
                 (increase (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l)))
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
-                (increase (costeDelPlan) 1)
+                ; (increase (costeDelPlan) 1)
             )
     )
 )
