@@ -1,5 +1,5 @@
-(define (domain dominio6)
-    (:requirements :strips :typing :negative-preconditions) 
+(define (domain dominio8)
+    (:requirements :strips :typing :negative-preconditions :fluents)
     (:types
         ; una entidad es un elemento que se encuentra en una posición concreta del mapa
         unidad edificio recurso - entidad
@@ -11,9 +11,6 @@
         tUnidad - unidad
         tEdificio - edificio
         tRecurso - recurso
-
-        ; tipo investigación
-        investigacion
     )
 
     (:constants
@@ -21,7 +18,7 @@
         VCE marine soldado - tUnidad
 
         ; los edificios pueden ser de tipo centro de mando, barracon o edificio
-        centroDeMando barracon extractor bahiaDeIngenieria - tEdificio
+        centroDeMando barracon extractor - tEdificio
 
         ; existen dos tipos de recurso, mineral y gas
         mineral gas - tRecurso
@@ -60,20 +57,26 @@
 
         ; indicamos que se ha generado una unidad
         (unidadGenerada ?u - unidad)
-
-        ; indicamos que una investigación requiere un recurso concreto
-        (investigacionRequiere ?i - investigacion ?r - recurso)
-
-        ; indicamos que una investigación ha sido completada
-        (investigacionCompletada ?i - investigacion)
-
-        ; para generar una unidad, se necesita una investigación concreta
-        (unidadRequiereInvestigacion ?tu - tUnidad ?i - investigacion)
     )
 
     (:functions
+        ; almacenar la cantidad de unidades de cada recurso
+        (cantidadRecurso ?r - recurso)
+
+        ; almacenar la cantidad de VCEs asignados en una localizacion
+        (cantidadVCEAsig ?l)
+
+        ; guardar el número de unidades necesarias de un recurso concreto para construir un tipo de edificio
+        (costeEdificio ?te - tEdificio ?r - recurso)
+
+        ; guardar el número de unidades necesarias de un recurso concreto para generar un tipo de unidad
+        (costeUnidad ?tu - tUnidad ?r - recurso)
+
         ; buscamos minimizar el valor de esta funcion
         (costeDelPlan)
+
+        ; medida del tiempo que tardan las acciones
+        (tiempoRealizacion)
     )
 
     ; permite desplazar una unidad entre dos localizaciones
@@ -101,6 +104,21 @@
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el VCE
+                (when (tipoUnidad ?u VCE)
+                    (increase (tiempoRealizacion) 20)
+                )
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el marine
+                (when (tipoUnidad ?u marine)
+                    (increase (tiempoRealizacion) 4)
+                )
+
+                ; incrementamos el tiempo que tarda el plan segun el tiempo que tarda en navegar el soldado
+                (when (tipoUnidad ?u soldado)
+                    (increase (tiempoRealizacion) 1)
+                )
             )
     )
 
@@ -140,13 +158,16 @@
                 ; indicamos que el recurso del tipo indicado está siendo extraído
                 (extrayendoRecurso ?r)
 
+                ; aumentar en uno la cantidad de VCE asignados en una localización
+                (increase (cantidadVCEAsig ?l) 1)
+
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
             )
     )
 
     ; una unidad construye un edificio en una determinada localizacion, utilizando un recurso concreto
-    (:action Construir
+    (:action CONSTRUIREDIFICIO
         :parameters (?u - unidad ?e - edificio ?l - localizacion)
         :precondition
             (and
@@ -165,9 +186,14 @@
                         (tipoEdificio ?e ?te)
                         ; se recorren todos los tipos de recurso existentes 
                         (forall (?tr - tRecurso)
-                            ; si la construcción de ese tipo de edificio requiere el recurso, este debe de estar extrayéndose
+                            ; si la construcción de ese tipo de edificio requiere el recurso
                             (imply (construccionRequiere ?te ?tr)
-                                (extrayendoRecurso ?tr)
+                                (and
+                                    ; este debe de estar extrayéndose
+                                    (extrayendoRecurso ?tr)
+                                    ; la cantidad de recurso debe ser mayor que el coste
+                                    (>= (cantidadRecurso ?tr) (costeEdificio ?te ?tr))
+                                )
                             )
                         )
                     )
@@ -189,13 +215,34 @@
             (and
                 ; se marca el edificio como construido
                 (edificioConstruido ?e)
-                
+
                 ; el edificio debe estar en una determinada posicion
                 (en ?e ?l)
 
+                ; si el edificio es de tipo barracon, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
+                (when (tipoEdificio ?e barracon)
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeEdificio barracon mineral))
+
+                        (decrease (cantidadRecurso gas) (costeEdificio barracon gas))
+
+                        (increase (tiempoRealizacion) 50)
+                    )
+                )
+
+                ; si el edificio es de tipo extractor, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
+                (when (tipoEdificio ?e extractor)
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeEdificio extractor mineral))
+
+                        (decrease (cantidadRecurso gas) (costeEdificio extractor gas))
+
+                        (increase (tiempoRealizacion) 30)
+                    )
+                )
+
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
-                
             )
     )
 
@@ -212,6 +259,7 @@
                 ; la unidad a generar no ha debido ser generada anteriormente
                 (not (unidadGenerada ?u))
 
+                ; la unidad debe de ser generada en el edificio que le corresponde según su tipo
                 (exists (?tu - tUnidad)
                     (and
                         ; extraemos el tipo de la unidad
@@ -224,75 +272,100 @@
                                 (unidadGeneradaEn ?tu ?te)
                             )
                         )
-                        
-                        ; comprobamos que para este tipo de unidad todas las investigaciones necesarias han sido completadas
-                        (forall (?i - investigacion)
-                            (imply (unidadRequiereInvestigacion ?tu ?i)
-                                (investigacionCompletada ?i)
-                            )
-                        )
                     )
                 )
+
 
                 ; asegura que se están extrayendo los recursos necesarios para generar la unidad
                 (exists (?tu - tUnidad)
                     (and
                         ; extraemos el tipo de unidad
                         (tipoUnidad ?u ?tu)
-                        ; si su generación requiere algún recurso, debe de estar extrayéndose
+                        ; si su generación requiere algún recurso
                         (forall (?tr - tRecurso)
                             (imply (unidadRequiere ?tu ?tr)
-                                (extrayendoRecurso ?tr)
+                                (and
+                                    ; debe de estar extrayéndose
+                                    (extrayendoRecurso ?tr)
+                                    ; la cantidad de recurso disponible debe ser mayor o igual que lo que se necesita para generar la unidad
+                                    (>= (cantidadRecurso ?tr) (costeUnidad ?tu ?tr))
+                                )
                             )
                         )
                     )
                 )
-                
             )
         :effect
             (and
                 ; se ha reclutado la unidad en la localización del edificio generador
                 (en ?u ?l)
-
                 ; se ha reclutado la unidad
                 (unidadGenerada ?u)
+
+                ; si la unidad es de tipo VCE, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
+                (when (tipoUnidad ?u VCE)
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeUnidad VCE mineral))
+
+                        (decrease (cantidadRecurso gas) (costeUnidad VCE gas))
+
+                        (increase (tiempoRealizacion) 10)
+                    )
+                )
+                
+                ; si la unidad es de tipo marine, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
+                (when (tipoUnidad ?u marine)
+                    (and                
+                        (decrease (cantidadRecurso mineral) (costeUnidad marine mineral))
+
+                        (decrease (cantidadRecurso gas) (costeUnidad marine gas))
+
+                        (increase (tiempoRealizacion) 20)
+                    )
+                )
+                
+                ; si la unidad es de tipo soldado, reducimos el stock de los minerales y gases que necesita e incrementamos el tiempo que tarda el plan
+                (when (tipoUnidad ?u soldado)
+                    (and
+                        (decrease (cantidadRecurso mineral) (costeUnidad soldado mineral))
+
+                        (decrease (cantidadRecurso gas) (costeUnidad soldado gas))
+
+                        (increase (tiempoRealizacion) 30)
+                    )
+                )
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
             )
     )
 
-    (:action Investigar
-        :parameters (?e - edificio ?i - investigacion)
+    (:action Recolectar
+        :parameters (?r - recurso ?l - localizacion)
         :precondition
             (and
-                ; no se ha llevado a cabo aún la investigación
-                (not (investigacionCompletada ?i))
+                ; el recurso está en la localización indicada
+                (en ?r ?l)
 
-                ; el edificio necesario para investigar ha sido construido
-                (edificioConstruido ?e)
+                ; se está extrayendo el recurso
+                (extrayendoRecurso ?r)
 
-                ; el edificio se corresponde con la bahía de ingeniería
-                (tipoEdificio ?e bahiaDeIngenieria)
+                ; al recolectar el recurso, su stock no va a superar las 60 unidades
+                (>= 60 (+ (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l))))
 
-                ; asegura que se están extrayendo los recursos necesarios para llevar a cabo la investigacion
-                (forall (?tr - tRecurso)
-                    (and
-                        ; si la investigacion requiere algún recurso, debe de estar extrayéndose
-                        (imply (investigacionRequiere ?i ?tr)
-                            (extrayendoRecurso ?tr)
-                        )
-                    )
-                )
-
+                ; el número de VCEs asignados en la localización va a ser mayor a 0
+                (< 0 (cantidadVCEAsig ?l))
             )
         :effect
             (and
-                ; se ha completado la investigación
-                (investigacionCompletada ?i)
+                ; aumenta el stock del recurso según el número de VCEs asignados
+                (increase (cantidadRecurso ?r) (* 10 (cantidadVCEAsig ?l)))
 
                 ; al realizar la acción, se incrementa el coste del plan en 1
                 (increase (costeDelPlan) 1)
+
+                ; se incrementa el tiempo que tarda el plan en la cantidad especificada en el guion
+                (increase (tiempoRealizacion) 5)
             )
     )
 )
